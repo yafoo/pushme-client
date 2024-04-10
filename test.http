@@ -1,0 +1,10 @@
+POST http://127.0.0.1:3200 HTTP/1.1
+content-type: application/json
+
+{
+    "title": "John Doe 来消息了",
+    "content": "John Doe is a software engineer\nJohn Doe is a software engineer\nJohn Doe ngineer John Doe is a software engineerJohn Doe\nThe string will be converted to a single text segment using the default text settings.",
+    "date": "2024-04-01 12:12:52"
+    //"content": "## 即时工具-在线markdown编辑器\n\n1. 破i【】怕【】怕【\n2. o哦【\n3. 、哦【】怕【ipip\n\n> 可进行html或md导入编辑",
+    //"type": "markdown"
+}
