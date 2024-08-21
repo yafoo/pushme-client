@@ -13,7 +13,7 @@ Gitee：https://gitee.com/yafu/pushme-client
 
 ## 使用教程
 
-请在[Releases](https://github.com/yafoo/pushme-server/releases)中下载最新版客户端，打开即可免安装运行。
+请在[Releases](https://github.com/yafoo/pushme-client/releases)中下载最新版客户端，打开即可免安装运行。
 
 软件默认运行在`3200`端口，在你的PushMe安卓客户端上，设置消息转发url为：`http://您局域网IP:3200`即可。
 
