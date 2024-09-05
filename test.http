@@ -2,9 +2,42 @@ POST http://127.0.0.1:3200 HTTP/1.1
 content-type: application/json
 
 {
-    "title": "John Doe 来消息了",
-    "content": "John Doe is a software engineer\nJohn Doe is a software engineer\nJohn Doe ngineer John Doe is a software engineerJohn Doe\nThe string will be converted to a single text segment using the default text settings.",
+    "title": "🍐来自PushMe消息100",
+    "content": "这是一条PushMe转发来的消息，消息内容，定时任务执行成功",
     "date": "2024-04-01 12:12:52"
-    //"content": "## 即时工具-在线markdown编辑器\n\n1. 破i【】怕【】怕【\n2. o哦【\n3. 、哦【】怕【ipip\n\n> 可进行html或md导入编辑",
-    //"type": "markdown"
 }
+# {
+#     "title": "🍐来自PushMe消息",
+#     "content": "这是一条PushMe转发来的消息\n消息内容：<code>定时任务执行成功<code>",
+#     "date": "2024-04-01 12:12:52"
+# }
+# {
+#     "title": "🍐来自PushMe消息",
+#     "date": "2024-04-01 12:12:52",
+#     "content": "50",
+#     "type": "data"
+# }
+# {
+#     "title": "数据统计",
+#     "date": "2024-04-01 12:12:52",
+#     "content": "||IP|UV|PV\n-|-|-|-\n今日|43|59|114\n预计|62|78|167\n昨日|64|71|149",
+#     "type": "markdown"
+# }
+# {
+#     "title": "数据统计",
+#     "date": "2024-04-01 12:12:52",
+#     "content": "||IP|UV|PV\n-|-|-|-\n今日|43|59|114\n预计|62|78|167\n昨日|64|71|149",
+#     "type": "markdata"
+# }
+# {
+#     "title": "Echarts图表",
+#     "date": "2024-04-01 12:12:52",
+#     "content": "{\"tooltip\":{},\"legend\":{\"data\":[\"销量\"]},\"xAxis\":{\"data\":[\"衬衫\",\"羊毛衫\",\"雪纺衫\",\"裤子\",\"高跟鞋\",\"袜子\"]},\"yAxis\":{},\"series\":[{\"name\":\"销量\",\"type\":\"bar\",\"data\":[5,20,36,10,10,50]}]}",
+#     "type": "chart"
+# }
+# {
+#     "title": "简单饼图",
+#     "date": "2024-04-01 12:12:52",
+#     "content": "{\"series\":[{\"type\":\"pie\",\"data\":[{\"value\":336,\"name\":\"A\"},{\"value\":234,\"name\":\"B\"},{\"value\":1548,\"name\":\"C\"}]}]}",
+#     "type": "chart"
+# }

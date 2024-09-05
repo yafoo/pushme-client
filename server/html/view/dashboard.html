@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>数据小屏</title>
+    <link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/static/app.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app" class="dashboard">
+        <div class="container">
+            <div class="dashboard">
+                <div class="dashboard-col" v-for="num in this.column" :key="num" :ref="'col' + num">
+                    <div class="dashboard-item" v-for="message in this.colList[num-1]" :key="message.id" @click="openMessage(message)">
+                        <div class="dashboard-title">{{message.title}}</div>
+                        <div class="dashboard-date">{{message.date}}</div>
+                        <div class="dashboard-markdown markdown" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
+                        <div class="dashboard-chart" v-else-if="isChartMsg(message)"><chart :option="JSON.parse(message.content)"></chart></div>
+                        <div class="dashboard-content" v-else>
+                            <div v-for="(text, index) in renderText(message.content)" :key="index">{{text}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/vue.global.js"></script>
+    <script src="/static/markdown-it.min.js"></script>
+    <script src="/static/app.js"></script>
+    <script src="/static/chart.js"></script>
+    <script>
+        const {createApp} = Vue;
+        const app = createApp({
+            components: {Chart},
+            data() {
+                return {
+                    list: [],
+                    column: 2,
+                    colList: [],
+                    isMonting: false,
+                    md: null,
+                }
+            },
+            created() {
+                this.init();
+            },
+            mounted() {
+                setTimeout(() => {
+                    this.resize();
+                }, 100);
+                window.addEventListener('resize', _ => {
+                    this.$nextTick(() => {
+                        this.resize();
+                    });
+                });
+            },
+            methods: {
+                init() {
+                    bc.onmessage = e => {
+                        if(e.data.type == 'new_message' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail))) {
+                            console.log('new_message', e.data.detail);
+                            this.setMessage(e.data.detail);
+                        } else if(e.data.type == 'message_del' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail))) {
+                            this.getList();
+                        }
+                    };
+
+                    this.getList();
+                },
+                getList() {
+                    window.GoGetDataList().then(list => {
+                        this.list = list;
+                        this.initColumn();
+                        this.$nextTick(() => {
+                            this.mountBoard();
+                        });
+                    });
+                },
+                openMessage(msg) {
+                    window.GoOpenMessage(msg.id);
+                },
+                setMessage(msg) {
+                    let is_set = false;
+                    for(let i = 0; i < this.list.length; i++) {
+                        if(this.list[i].id == msg.id) {
+                            // this.list.splice(i, 1, msg);
+                            Object.keys(msg).forEach(key => {
+                                this.list[i][key] = msg[key];
+                            });
+                            is_set = true;
+                            break;
+                        }
+                    }
+                    if(!is_set) {
+                        this.getList();
+                    }
+                },
+                isMarkMsg(msg) {
+                    return isMarkMsg(msg);
+                },
+                isChartMsg(msg) {
+                    return isChartMsg(msg);
+                },
+                renderMark(content) {
+                    if(!this.md) {
+                        this.md = markdownit({html: true, linkify: false});
+                    }
+                    return this.md.render(content);
+                },
+                renderText(content) {
+                    return (content + '').split("\n");
+                },
+                resize() {
+                    const column = Math.round(window.innerWidth / 150);
+                    if(column != this.column) {
+                        this.column = column;
+                        this.initColumn();
+                        this.$nextTick(() => {
+                            this.mountBoard();
+                        });
+                    }
+                },
+                initColumn() {
+                    this.colList = [];
+                    for(let i=0; i<this.column; i++) {
+                        this.colList[i] = [];
+                    }
+                },
+                mountBoard(index=0) {
+                    if(index == 0) {
+                        if(this.isMonting) {
+                            return;
+                        }
+                        this.isMonting = true;
+                    }
+                    if(this.list.length > index) {
+                        const col_i = this.getColumn();
+                        this.colList[col_i].push(this.list[index]);
+                        this.$nextTick(() => {
+                            this.mountBoard(index + 1);
+                        });
+                    } else {
+                        this.isMonting = false;
+                    }
+                },
+                getColumn() {
+                    const heights = [];
+                    for(let i=1; i<=this.column; i++) {
+                        heights.push(this.$refs['col'+i][0].offsetHeight);
+                    }
+                    const min_height = Math.min(...heights);
+
+                    let col_i = 0;
+                    for(let i=0; i<this.column; i++) {
+                        if(heights[i] == min_height) {
+                            col_i = i;
+                            break;
+                        }
+                    }
+
+                    return col_i;
+                },
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

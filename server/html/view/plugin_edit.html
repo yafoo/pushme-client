@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>插件编辑</title>
+    <link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/static/app.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="container plugin-form">
+            <div class="plugin-form-item">
+                <input class="input" v-model="plugin.title" placeholder="插件标题" />
+            </div>
+            <div class="plugin-form-item plugin-form-textarea">
+                <textarea class="textarea" v-model="plugin.content" placeholder="插件代码"></textarea>
+            </div>
+            <div class="plugin-form-item plugin-form-button">
+                <div class="button" @click="edit">保存</div>
+                <div class="button second" v-if="id > 0" @click="del">删除</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/vue.global.js"></script>
+    <script src="/static/app.js"></script>
+    <script>
+        const {createApp} = Vue;
+        const app = createApp({
+            data() {
+                return {
+                    id: 0,
+                    plugin: {},
+                    defaultCode: `/**
+ * @name 插件名
+ * @param {Object} msg - 消息对象
+ * @param {String} msg.title - 标题
+ * @param {String} msg.content - 内容
+ * @param {String} msg.date - 时间
+ * @param {String} msg.type - 类型
+ * @param {Function} next - 下一个插件
+ */
+function(msg, next) {
+    // your code
+    next();
+}`
+                }
+            },
+            mounted() {
+                this.init();
+            },
+            methods: {
+                init() {
+                    if(query.get('id') > 0) {
+                        this.id = parseInt(query.get('id'));
+                        this.get();
+                    } else {
+                        this.plugin.content = this.defaultCode;
+                    }
+                },
+                get() {
+                    window.GoGetPlugin(this.id).then(plugin => {
+                        this.plugin = plugin;
+                    });
+                },
+                edit() {
+                    if(!this.plugin.title) {
+                        return WebToast('请填写插件标题！');
+                    }
+                    window.GoEditPlugin(this.plugin).then(id => {
+                        if(id > 0) {
+                            if(this.id == 0) {
+                                this.id = id;
+                                this.get();
+                            }
+                            bc.postMessage({'type': 'plugin_change', 'detail': {}});
+                            WebToast('保存成功！', 2000, _ => {
+                                // window.GoClose();
+                            });
+                        } else {
+                            WebToast('保存失败！');
+                        }
+                    });
+                },
+                del() {
+                    if(!this.id) {
+                        return WebToast('插件不存在或已删除！');
+                    }
+
+                    WebConfirm('确定删除？', action => {
+                        if(action != 'ok') {
+                            return;
+                        }
+                        window.GoDelPlugin(this.id).then(res => {
+                            if(res === true) {
+                                bc.postMessage({'type': 'plugin_change', 'detail': {}});
+                                this.id = 0;
+                                this.plugin = {};
+                                WebToast('删除成功！', 2000, _ => {
+                                    // window.GoClose();
+                                });
+                            } else {
+                                WebToast('删除失败！');
+                            }
+                        });
+                    });
+                },
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

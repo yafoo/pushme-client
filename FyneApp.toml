@@ -1,8 +1,0 @@
-Website = "https://push.i-i.me"
-
-[Details]
-  Icon = "./icon.png"
-  Name = "PushMeClient"
-  ID = "me.i-i.push"
-  Version = "1.0.0"
-  Build = 1

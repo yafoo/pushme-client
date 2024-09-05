@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>PushMe Client</title>
+    <link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/static/app.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app" ref="app" class="gray">
+        <div class="container">
+            <div class="list-item" style="text-align: center; font-size: 12px;" v-if="!list.length">暂无消息</div>
+            <template v-for="message in list" :key="message.id">
+                <div class="list-item" @click="openMessage(message)" v-if="isTextMsg(message)" :class="'theme-' + parseTitle(message.title).theme">
+                    <div class="list-title">{{parseTitle(message.title).title}}</div>
+                    <div class="list-content" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
+                    <div class="list-content" v-else>{{message.content}}</div>
+                    <div class="list-date">{{message.date}}</div>
+                </div>
+            </template>
+            <div class="button" v-if="hasMore" style="margin: 15px 0;" @click="getList(page+1)">加载更多</div>
+        </div>
+        <div class="float-tools">
+            <div class="button-cirle button-refresh" @click="getList(1)"><img class="icon" src="/static/icon/refresh.svg"></div>
+            <div class="button-cirle button-setting" @click="openSetting"><img class="icon" src="/static/icon/setting.svg"></div>
+            <div class="button-cirle button-dashboard" @click="openDashboard"><img class="icon" src="/static/icon/dashboard.svg"></div>
+        </div>
+    </div>
+
+    <script src="/static/vue.global.js"></script>
+    <script src="/static/markdown-it.min.js"></script>
+    <script src="/static/app.js"></script>
+    <script>
+        const {createApp} = Vue;
+        const app = createApp({
+            data() {
+                return {
+                    id: 0,
+                    list: [],
+                    page: 1,
+                    pageSize: 10,
+                    hasMore: false,
+                    md: null,
+                    host: null,
+                    client: null,
+                    repost: false,
+                    plugin: null,
+                }
+            },
+            mounted() {
+                this.init();
+            },
+            methods: {
+                init() {
+                    this.getList(1);
+
+                    bc.onmessage = e => {
+                        if(e.data.type == 'plugin_change') {
+                            this.initPlugin();
+                        } else if(e.data.type == 'message_del') {
+                            isTextMsg(e.data.detail) && this.getList(1);
+                        }
+                    };
+
+                    this.initPlugin();
+
+                    window.GoGetRepostState().then(state => {
+                        this.repost = state;
+                    });
+                    window.GoOnMounted();
+
+                    this.checkVersion();
+                },
+                getList(page = 1) {
+                    this.page = page;
+                    window.GoGetMessageList(this.page, this.pageSize).then(list => {
+                        if(list.length < this.pageSize) {
+                            this.hasMore = false;
+                        } else {
+                            this.hasMore = true;
+                        }
+
+                        if(this.page == 1) {
+                            this.list = list;
+                            this.$nextTick(() => {
+                                document.getElementById('app').scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+                            });
+                        } else {
+                            list.forEach(item => {
+                                this.list.push(item);
+                            });
+                        }
+                    });
+                },
+                openMessage(msg) {
+                    window.GoOpenMessage(msg.id);
+                },
+                newMessage(msg) {
+                    if(this.plugin) {
+                        this.pluginMsg(msg);
+                    } else {
+                        this.addMessage(msg);
+                    }
+                },
+                addMessage(msg) {
+                    window.GoAddMessage(msg).then(newMsg => {
+                        if(newMsg.id > 0) {
+                            if(isDataMsg(newMsg) || isChartMsg(newMsg)) {
+                                bc.postMessage({'type': 'new_message', 'detail': newMsg});
+                            } else if(isTextMsg(newMsg)) {
+                                this.getList(1);
+                                content = newMsg.content.replace(/\n/g, ' ').replace(/<[^>]+>|&[^>]+;/g, '');
+                                window.GoNotification({...newMsg, content});
+                            }
+
+                            if(this.repost) {
+                                window.GoRepostMessage(newMsg);
+                            }
+                        } else {
+                            WebToast('消息发送失败');
+                        }
+                    });
+                },
+                openDashboard() {
+                    window.GoOpenDashboard();
+                },
+                getDashboard() {
+                    const list = [];
+                    this.list.forEach(item => {
+                        if(isDataMsg(item) || isChartMsg(item)) {
+                            list.push({...item});
+                        }
+                    });
+                    return list;
+                },
+                openSetting() {
+                    window.GoOpenSetting();
+                },
+                isTextMsg(msg) {
+                    return isTextMsg(msg);
+                },
+                isMarkMsg(msg) {
+                    return isMarkMsg(msg);
+                },
+                renderMark(content) {
+                    if(!this.md) {
+                        this.md = markdownit({html: true, linkify: false});
+                    }
+                    return this.md.renderInline(content).replace(/<[^>]+>|&[^>]+;/g, '');
+                },
+                parseTitle(title) {
+                    return parseTitle(title);
+                },
+                loadMqtt() {
+                    const script = document.createElement('script');
+                    script.src = '/static/mqtt.min.js';
+                    script.onload = () => {
+                        setTimeout(() => {
+                            this.initHost();
+                        }, 100);
+                    }
+                    document.body.appendChild(script);
+                },
+                initHost(host) {
+                    if(host) {
+                        if(!host.enable || !host.protocol || !host.ip || !host.port || !host.push_key) {
+                            return WebToast('自建服务参数配置不全', {...this.host});
+                        }
+                        this.host = host;
+                    }
+
+                    if(typeof(mqtt) === 'undefined') {
+                        return this.loadMqtt();
+                    }
+
+                    const url = `${this.host.protocol}://${this.host.ip}:${this.host.port}`;
+                    const sub_topic = this.host.push_key;
+                    const client_id = 'pc_' + sub_topic;
+                    const options = {
+                        clientId: client_id,
+                        keepalive: 300,
+                    };
+                    if(this.host.offline_msg) {
+                        options.clean = false;
+                    }
+                    this.client = mqtt.connect(url, options);
+
+                    this.client.on('connect', res => {
+                        console.log('Host Connected');
+                        this.client.subscribe(sub_topic, {qos: this.host.offline_msg ? 1 : 0});
+                        window.GoLog(`connect to ${url} success`);
+                    });
+
+                    this.client.on('message', (topic, payload) => {
+                        if(topic == sub_topic) {
+                            let data = payload.toString();
+                            console.log('Host NewMessage', data);
+                            try {
+                                data = JSON.parse(data);
+                                this.newMessage(data);
+                            } catch(e) {
+                                WebToast(e);
+                            }
+                        }
+                    });
+                },
+                initPlugin() {
+                    window.GoGetPluginCount().then(count => {
+                        console.log('initPlugin', count);
+                        this.plugin && this.plugin.terminate && this.plugin.terminate();
+                        if(count == 0) {
+                            this.plugin = null;
+                            return;
+                        }
+                        this.plugin = new Worker('/static/plugin.js?t=' + Date.now());
+                        this.plugin.onmessage = e => {
+                            this.addMessage(e.data);
+                        };
+                    });
+                },
+                pluginMsg(msg) {
+                    this.plugin && this.plugin.postMessage && this.plugin.postMessage(msg);
+                },
+                checkVersion() {
+                    WebCheckVersion();
+                },
+            }
+        }).mount('#app');
+
+        function WebNewMessage(msg) {
+            console.log('WebNewMessage', msg);
+            try {
+                app.newMessage(msg);
+            } catch(e) {
+                WebToast(e);
+            }
+        }
+
+        function WebHostConnect(host) {
+            console.log('WebHostConnect', host);
+            setTimeout(() => {
+                app.initHost(host);
+            }, 100);
+        }
+    </script>
+</body>
+</html>

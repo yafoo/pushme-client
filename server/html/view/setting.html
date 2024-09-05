@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>系统设置</title>
+    <link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/static/app.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <div class="setting" v-if="form">
+            <div class="setting-menu">
+                <div class="setting-menu-item" v-for="menu in formItem" :key="menu.key" @click="menuClick(menu.key)" :class="menu.key == current ? 'hover' : ''">{{menu.name}}</div>
+            </div>
+            <div class="setting-form" :scrollIntoView="current">
+                <div class="form-section" v-for="menu in formItem" :key="menu.key" :key="menu.key" :id="menu.key">
+                    <div class="form-item" v-for="item in menu.items" :key="item.key">
+                        <div class="form-label">{{item.label}}</div>
+                        <div class="form-content">
+                            <input class="input" v-if="item.type == 'input'" v-model="form[menu.key][item.key]" />
+                            <select class="select" v-else-if="item.type == 'select'" v-model="form[menu.key][item.key]">
+                                <template v-if="item.key == 'enable'">
+                                    <option v-for="val in enables" :key="val" :value="val">{{val ? '开启' : '关闭'}}</option>
+                                </template>
+                                <template v-else-if="item.key == 'offline_msg'">
+                                    <option v-for="val in offlines" :key="val" :value="val">{{val ? '接收' : '不接收'}}</option>
+                                </template>
+                                <template v-else-if="item.key == 'method'">
+                                    <option v-for="val in methods" :key="val" :value="val">{{val}}</option>
+                                </template>
+                                <template v-else-if="item.key == 'duration'">
+                                    <option v-for="val in durations" :key="val" :value="val">{{val}}</option>
+                                </template>
+                                <template v-else-if="item.key == 'audio'">
+                                    <option v-for="val in audioList" :key="val" :value="val">{{val}}</option>
+                                </template>
+                            </select>
+                            <div class="form-text" v-else-if="item.type == 'text'">
+                                {{item.text}}
+                                <div class="button button-mini" v-if="item.key == 'version'" @click="checkVersion">检查更新</div>
+                                <div class="button button-mini" v-else-if="item.key == 'msg_count'" @click="clearMessage">清空消息</div>
+                            </div>
+                            <div class="form-link" v-else-if="item.type == 'link'"><a :href="item.url" target="_blank">{{item.text || item.url}}</a></div>
+                        </div>
+                        <div class="form-tips" v-if="item.tips">{{item.tips}}</div>
+                    </div>
+
+                    <div class="section-tips" v-if="menu.key == 'api' && form && form.api.enable && form.api.ip && form.api.port">
+                        <div class="form-label">本机接口示例：</div>
+                        <div class="form-link">http://{{form.api.ip}}:{{form.api.port}}</div>
+                        <div class="form-link" v-for="ip in ips" :key="ip">http://{{ip}}:{{form.api.port}}</div>
+                    </div>
+                    <div class="section-tips" v-if="menu.key == 'system'">
+                        <div class="form-label">版本：<span class="form-text">{{version}}</span> <div class="button button-mini" @click="checkVersion">检查更新</div></div>
+                        <div class="form-tips"></div>
+                        <div class="form-label">消息总数：<span class="form-text">{{msgCount}}</span> <div class="button button-mini" @click="clearMessage">清空</div></div>
+                        <div class="form-tips"></div>
+                        <div class="form-label">官网：<a class="form-link" href="https://push.i-i.me/" target="_blank">https://push.i-i.me/</a></div>
+                        <div class="form-tips"></div>
+                        <div class="form-label">仓库：<a class="form-link" href="https://github.com/yafoo/pushme-client" target="_blank">GitHub</a> | <a class="form-link" href="https://gitee.com/yafu/pushme-client" target="_blank">Gitee</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="float-tools form-tools">
+            <div class="button" @click="saveSetting">保存</div>
+            <div class="button normal" @click="getDefault">默认值</div>
+            <div class="button secondary" v-if="isRestart" @click="restart">重启</div>
+        </div>
+    </div>
+
+    <script src="/static/vue.global.js"></script>
+    <script src="/static/app.js"></script>
+    <script>
+        const {createApp} = Vue;
+        const app = createApp({
+            data() {
+                return {
+                    form: null,
+                    setstr: null,
+                    isRestart: false,
+                    formItem: [
+                        {name: '接口服务', key: 'api', items: [
+                            {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
+                            {label: '监听IP', key: 'ip', type: 'input', tips: '默认：127.0.0.1'},
+                            {label: '监听端口', key: 'port', type: 'input', tips: '默认：3200'},
+                        ]},
+                        {name: '自建服务', key: 'host', items: [
+                            {label: '状态', key: 'enable', type: 'select', tips: '默认：关闭'},
+                            {label: '服务协议', key: 'protocol', type: 'input', tips: '默认：ws，支持wss'},
+                            {label: 'IP或域名', key: 'ip', type: 'input', tips: ''},
+                            {label: '服务端口', key: 'port', type:'input', tips: 'PushMe Server(v1.3.0+) websocket端口，默认：3010'},
+                            {label: '离线消息', key: 'offline_msg', type: 'select', tips: '默认：不接收'},
+                            {label: 'push_key', key: 'push_key', type: 'input', tips: 'PushMe APP 获取的push_key，并需在PushMe Server上配置'},
+                        ]},
+                        {name: '消息插件', key: 'plugin', items: []},
+                        {name: '消息转发', key: 'repost', items: [
+                            {label: '状态', key: 'enable', type: 'select', tips: '默认：关闭'},
+                            {label: '转发网址', key: 'url', type: 'input', tips: '完整URL，包含端口'},
+                            {label: '请求方式', key: 'method', type: 'select', tips: '默认：POST/JSON'},
+                        ]},
+                        {name: '桌面通知', key: 'notice', items: [
+                            {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
+                            {label: '持续时间', key: 'duration', type: 'select', tips: '默认：short'},
+                            {label: '提示音乐', key: 'audio', type: 'select', tips: '默认：default'},
+                        ]},
+                        {name: '系统信息', key: 'system', items: [
+                            {label: '开机启动', key: 'enable', type: 'select', tips: '默认：关闭'},
+                        ]},
+                    ],
+                    enables: [true, false],
+                    offlines: [false, true],
+                    methods: ['GET', 'POST/JSON', 'POST/FORM'],
+                    durations: ['short', 'long'],
+                    audioList: ['default', 'im', 'mail', 'reminder', 'sms', 'loopingalarm', 'loopingalarm2', 'loopingalarm3', 'loopingalarm4', 'loopingalarm5', 'loopingalarm6', 'loopingalarm7', 'loopingalarm8', 'loopingalarm9', 'loopingalarm10', 'loopingcall', 'loopingcall2', 'loopingcall3', 'loopingcall4', 'loopingcall5', 'loopingcall6', 'loopingcall7', 'loopingcall8', 'loopingcall9', 'loopingcall10', 'silent'],
+                    current: 'api',
+                    ips: [],
+                    version: '获取中..',
+                    msgCount: '获取中..',
+                }
+            },
+            watch: {
+                form: {
+                    deep: true,
+                    handler(val) {
+                        if(val) {
+                            if(JSON.stringify(val) != this.setstr) {
+                                this.isRestart = true;
+                            } else {
+                                this.isRestart = false;
+                            }
+                        }
+                    }
+                }
+            },
+            mounted() {
+                this.getSetting();
+                this.getIps();
+                this.getVersion();
+                this.getMcount();
+            },
+            methods: {
+                getSetting() {
+                    window.GoGetSetting().then(res => {
+                        this.form = res;
+                        this.setstr = JSON.stringify(res);
+                    });
+                },
+                getIps() {
+                    window.GoGetIps().then(res => {
+                        this.ips = res.filter(ip => !~['198.18.0.1', '192.168.195.225'].indexOf(ip));
+                    });
+                },
+                getVersion() {
+                    window.GoGetVersion().then(res => {
+                        this.version = res;
+                    });
+                },
+                getMcount() {
+                    window.GoGetMcount().then(res => {
+                        this.msgCount = res;
+                    });
+                },
+                getDefault() {
+                    window.GoGetSettingDefault().then(res => {
+                        this.form = res;
+                        WebToast('恢复默认值，保存后生效！');
+                    });
+                },
+                saveSetting() {
+                    window.GoSaveSetting(this.form).then(res => {
+                        if (res === true) {
+                            WebToast('保存成功，重启后生效！');
+                        } else {
+                            WebToast('保存失败！');
+                        }
+                    });
+                },
+                menuClick(key) {
+                    if(key == 'plugin') {
+                        return window.GoOpenPlugin();
+                    }
+                    this.current = key;
+                    document.getElementById(key).scrollIntoView();
+                },
+                checkVersion() {
+                    WebCheckVersion(true);
+                },
+                clearMessage() {
+                    WebConfirm('该操作会清空文本消息，不会删除数据消息。', '确定清空？', action => {
+                        if(action != 'ok') {
+                            return;
+                        }
+                        window.GoClearMessage().then(res => {
+                            if(res == true) {
+                                bc.postMessage({'type': 'message_del', 'detail': {type: 'text'}});
+                                this.getMcount();
+                                WebToast('清空成功！!');
+                            } else {
+                                WebToast('清空失败!');
+                            }
+                        });
+                    });
+                },
+                restart() {
+                    window.GoRestart();
+                },
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
