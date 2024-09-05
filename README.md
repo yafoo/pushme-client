@@ -34,3 +34,13 @@ PushMeAPP后面也会支持图表消息。
 1. 本人是第一次学习开发go，代码写的不好，欢迎提出意见建议。
 
 ## 部分界面
+
+![主页](https://github.com/user-attachments/assets/1c6a9a8b-ac09-4d3e-9988-f00c2afe59fa)
+![消息](https://github.com/user-attachments/assets/cc928c04-3821-483e-a44c-93e7a81e96c3)
+![小屏](https://github.com/user-attachments/assets/8e80d762-1e19-4f12-a58f-b832a9a252b8)
+![markdown](https://github.com/user-attachments/assets/7a23640d-3077-4c7e-bf3d-ef22e1816579)
+![图表](https://github.com/user-attachments/assets/7e5d619e-b21c-422a-9052-e325567c13f9)
+![设置](https://github.com/user-attachments/assets/9ca54ee2-ad15-4d24-b967-f48f834e172b)
+![插件](https://github.com/user-attachments/assets/655dbb7b-1a3a-47c8-b448-19caacfac2cf)
+![通知](https://github.com/user-attachments/assets/6e353862-a75d-42e9-99cd-8d2542498776)
+![图表全屏](https://github.com/user-attachments/assets/8e0d6c00-d3a9-49f6-87d3-650b6cb74a83)
