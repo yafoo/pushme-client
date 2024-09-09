@@ -1,3 +1,7 @@
+## Master停止开发
+
+由于使用fyne框架开发，实际效果不是太满意，故而本分支停止开发，不再维护，请到webview分支查看最新代码。——2024-09-09
+
 # PushMeClient
 PushMeClient是一个接收来自[PushMe](https://push.i-i.me/) APP转发的消息的windows客户端
 
