@@ -107,6 +107,8 @@
                     }
                 },
                 addMessage(msg) {
+                    msg.title = msg.title.replace(/\[~.+\]$/g, ''); //过滤通道信息
+
                     window.GoAddMessage(msg).then(newMsg => {
                         if(newMsg.id > 0) {
                             if(isDataMsg(newMsg) || isChartMsg(newMsg)) {
