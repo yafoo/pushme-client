@@ -113,8 +113,10 @@
                                 bc.postMessage({'type': 'new_message', 'detail': newMsg});
                             } else if(isTextMsg(newMsg)) {
                                 this.getList(1);
-                                content = newMsg.content.replace(/\n/g, ' ').replace(/<[^>]+>|&[^>]+;/g, '');
-                                window.GoNotification({...newMsg, content});
+                                const titles = parseTitle(newMsg.title);
+                                const title = ({'': '', i: '[info]', s: '[success]', f: '[failure]', w: '[warning]'})[titles.theme] + ' ' + titles.title;
+                                const content = newMsg.content.replace(/\n/g, ' ').replace(/[#*]+\s/g, '').replace(/<[^>]+>|&[^>]+;/g, '');
+                                window.GoNotification({...newMsg, title, content});
                             }
 
                             if(this.repost) {
@@ -150,7 +152,7 @@
                     if(!this.md) {
                         this.md = markdownit({html: true, linkify: false});
                     }
-                    return this.md.renderInline(content).replace(/<[^>]+>|&[^>]+;/g, '');
+                    return this.md.renderInline(content).replace(/<[^>]+>|&[^>]+;/g, '').replace(/[#*]+\s/g, '');
                 },
                 parseTitle(title) {
                     return parseTitle(title);
