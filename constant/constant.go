@@ -3,7 +3,7 @@ package constant
 const AppDir string = "push-me-client"
 const AppID string = "PushMeClient"
 const AppName string = "PushMe Client"
-const AppVersion string = "v2.0.0"
+const AppVersion string = "v2.0.1"
 const UrlVersion string = "https://push.i-i.me/api/version"
 
 const (
