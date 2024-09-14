@@ -7,7 +7,6 @@ import (
 	"PushMeClient/utils/setting"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -24,10 +23,9 @@ func Start(callback func(msg db.Msg)) {
 					fmt.Println(err)
 				}
 				w.Write(index)
-			} else if r.Header.Get("Content-Type") == "application/json" {
-				body, _ := io.ReadAll(r.Body)
+			} else if strings.Contains(strings.ToLower(r.Header.Get("Content-Type")), "application/json") {
 				msg := db.Msg{}
-				err := json.Unmarshal(body, &msg)
+				err := json.NewDecoder(r.Body).Decode(&msg)
 				if err == nil {
 					callback(msg)
 					w.Write([]byte("success"))
