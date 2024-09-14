@@ -95,8 +95,8 @@ function WebCheckVersion(tips=false) {
         if(res) {
             if(res.substring(0, 1) == '{') {
                 res = JSON.parse(res);
-                WebConfirm(res.update + '\n点击确定，打开下载链接', '发现新版本' + res.version, () => {
-                    window.open('https://github.com/yafoo/pushme-client/releases');
+                WebConfirm(res.update + '\n点击确定，打开下载链接', '发现新版本' + res.version, action => {
+                    action == "ok" && window.open('https://github.com/yafoo/pushme-client/releases');
                 });
             } else {
                 tips && WebToast(res);
