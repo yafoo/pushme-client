@@ -7,7 +7,6 @@ import (
 	"PushMeClient/makelnk"
 	"PushMeClient/server"
 	"PushMeClient/utils"
-	"PushMeClient/utils/setting"
 	"PushMeClient/utils/sys"
 	"PushMeClient/win"
 )
@@ -33,18 +32,16 @@ func main() {
 		}
 	}()
 
-	if setting.Setting.Api.Enable {
-		go server.Start(func(msg db.Msg) {
-			defer func() {
-				if r := recover(); r != nil {
-					fmt.Println(r)
-					w.WebToast(r.(string))
-				}
-			}()
+	go server.Start(func(msg db.Msg) {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println(r)
+				w.WebToast(r.(string))
+			}
+		}()
 
-			go w.WebNewMessage(msg)
-		})
-	}
+		go w.WebNewMessage(msg)
+	})
 
 	w.Run()
 
