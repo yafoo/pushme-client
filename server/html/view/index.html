@@ -181,7 +181,12 @@
                         return this.loadMqtt();
                     }
 
-                    const url = `${this.host.protocol}://${this.host.ip}:${this.host.port}`;
+                    let ip = this.host.ip + '';
+                    if(~ip.indexOf(':')) {
+                        !~ip.indexOf('[') && (ip = `[${ip}]`);
+                        !~ip.indexOf('[[') && (ip = `[${ip}]`);
+                    }
+                    const url = `${this.host.protocol}://${ip}:${this.host.port}`;
                     const sub_topic = this.host.push_key;
                     const client_id = 'pc_' + sub_topic;
                     const options = {
