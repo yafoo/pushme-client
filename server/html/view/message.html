@@ -14,9 +14,7 @@
             <div class="message-date">{{message.date}}</div>
             <div class="message-content markdown" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
             <div class="message-content" v-else-if="isChartMsg(message)"><chart :option="JSON.parse(message.content)"></chart></div>
-            <div class="message-content text" :class="message.type == 'data' ? 'data' : ''" v-else>
-                <div v-for="(text, index) in renderText(message.content)" :key="index">{{text}}</div>
-            </div>
+            <div class="message-content" :class="message.type == 'data' ? 'data' : 'text'" v-else>{{message.content}}</div>
         </div>
         <div class="float-tools" v-if="id > 0">
             <div class="button-cirle" @click="delMessage"><img class="icon" src="/static/icon/delete.svg"></div>
@@ -96,9 +94,6 @@
                         this.md = markdownit({html: true, linkify: false});
                     }
                     return this.md.render(content);
-                },
-                renderText(content) {
-                    return (content + '').split("\n");
                 },
                 parseTitle(title) {
                     return parseTitle(title);

@@ -17,9 +17,7 @@
                         <div class="dashboard-date">{{message.date}}</div>
                         <div class="dashboard-markdown markdown" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
                         <div class="dashboard-chart" v-else-if="isChartMsg(message)"><chart :option="JSON.parse(message.content)"></chart></div>
-                        <div class="dashboard-content" v-else>
-                            <div v-for="(text, index) in renderText(message.content)" :key="index">{{text}}</div>
-                        </div>
+                        <div class="dashboard-content" v-else>{{message.content}}</div>
                     </div>
                 </div>
             </div>
@@ -108,9 +106,6 @@
                         this.md = markdownit({html: true, linkify: false});
                     }
                     return this.md.render(content);
-                },
-                renderText(content) {
-                    return (content + '').split("\n");
                 },
                 resize() {
                     const column = Math.round(window.innerWidth / 150);

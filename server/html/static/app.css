@@ -313,6 +313,7 @@ ul>li {list-style: none;}
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-break: break-all;
 }
 .list-content,
 .list-date {
@@ -374,7 +375,8 @@ ul>li {list-style: none;}
     color: #555;
     line-height: 1.5;
 }
-.message-content.text {
+.message-content.text,
+.message-content.data {
     white-space: pre-wrap;
 }
 .message-content.data {
@@ -428,6 +430,7 @@ ul>li {list-style: none;}
     text-align: center;
     padding: 25px 0;
     line-height: 1.2;
+    white-space: pre-wrap;
 }
 .dashboard-markdown {
     font-size: 14px;
