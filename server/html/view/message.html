@@ -14,7 +14,7 @@
             <div class="message-date">{{message.date}}</div>
             <div class="message-content markdown" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
             <div class="message-content" v-else-if="isChartMsg(message)"><chart :option="JSON.parse(message.content)"></chart></div>
-            <div class="message-content" :class="message.type == 'data' ? 'data' : ''" v-else>
+            <div class="message-content text" :class="message.type == 'data' ? 'data' : ''" v-else>
                 <div v-for="(text, index) in renderText(message.content)" :key="index">{{text}}</div>
             </div>
         </div>

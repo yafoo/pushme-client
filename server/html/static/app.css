@@ -374,6 +374,9 @@ ul>li {list-style: none;}
     color: #555;
     line-height: 1.5;
 }
+.message-content.text {
+    white-space: pre-wrap;
+}
 .message-content.data {
     font-size: 18px;
     color: var(--color-primary);
