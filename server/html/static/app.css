@@ -43,6 +43,11 @@ ul>li {list-style: none;}
     width: 42px;
     border-radius: 21px;
     overflow: visible;
+    display: none;
+    animation: fadein .5s;
+}
+#app:hover .float-tools {
+    display: block;
 }
 
 /* 弹窗 */
@@ -385,12 +390,6 @@ ul>li {list-style: none;}
     padding: 20px 0;
     line-height: 1.2;
 }
-#app.message .float-tools {
-    display: none;
-}
-#app.message:hover .float-tools {
-    display: block;
-}
 
 /* 小屏页 */
 #app.dashboard {
@@ -520,7 +519,10 @@ ul>li {list-style: none;}
     color: var(--color-primary);
 }
 .form-tools {
-    width: auto;
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    z-index: 1;
     display: flex;
     gap: 8px;
     justify-content: center;
