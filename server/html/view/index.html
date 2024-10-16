@@ -117,7 +117,7 @@
                                 this.getList(1);
                                 const titles = parseTitle(newMsg.title);
                                 const title = ({'': '', i: '[info]', s: '[success]', f: '[failure]', w: '[warning]'})[titles.theme] + ' ' + titles.title;
-                                const content = newMsg.content.replace(/\n/g, ' ').replace(/[#*]+\s/g, '').replace(/<[^>]+>|&[^>]+;/g, '');
+                                const content = newMsg.content.replace(/\s+/g, ' ').replace(/[#*]+\s/g, '').replace(/<[^>]+>|&[^>]+;/g, '');
                                 window.GoNotification({...newMsg, title, content});
                             }
 
