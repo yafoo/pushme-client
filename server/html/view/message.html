@@ -25,11 +25,12 @@
     <script src="/static/vue.global.js"></script>
     <script src="/static/markdown-it.min.js"></script>
     <script src="/static/app.js"></script>
+    <script src="/static/chart.js"></script>
     <script src="/static/echarts.js"></script>
     <script>
         const {createApp} = Vue;
         const app = createApp({
-            components: {ECharts},
+            components: {Chart, ECharts},
             data() {
                 return {
                     id: 0,

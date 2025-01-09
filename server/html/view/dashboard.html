@@ -28,11 +28,12 @@
     <script src="/static/vue.global.js"></script>
     <script src="/static/markdown-it.min.js"></script>
     <script src="/static/app.js"></script>
+    <script src="/static/chart.js"></script>
     <script src="/static/echarts.js"></script>
     <script>
         const {createApp} = Vue;
         const app = createApp({
-            components: {ECharts},
+            components: {Chart, ECharts},
             data() {
                 return {
                     list: [],
@@ -58,10 +59,10 @@
             methods: {
                 init() {
                     bc.onmessage = e => {
-                        if(e.data.type == 'new_message' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail) || isEChartsMsg(e.data.detail))) {
+                        if(e.data.type == 'new_message' && isDataMsg(e.data.detail)) {
                             console.log('new_message', e.data.detail);
-                            this.setMessage(e.data.detail);
-                        } else if(e.data.type == 'message_del' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail) || isEChartsMsg(e.data.detail))) {
+                            this.updateMessage(e.data.detail);
+                        } else if(e.data.type == 'message_del' && isDataMsg(e.data.detail)) {
                             this.getList();
                         }
                     };
@@ -80,19 +81,19 @@
                 openMessage(msg) {
                     window.GoOpenMessage(msg.id);
                 },
-                setMessage(msg) {
-                    let is_set = false;
+                updateMessage(msg) {
+                    let is_update = false;
                     for(let i = 0; i < this.list.length; i++) {
                         if(this.list[i].id == msg.id) {
                             // this.list.splice(i, 1, msg);
                             Object.keys(msg).forEach(key => {
                                 this.list[i][key] = msg[key];
                             });
-                            is_set = true;
+                            is_update = true;
                             break;
                         }
                     }
-                    if(!is_set) {
+                    if(!is_update) {
                         this.getList();
                     }
                 },

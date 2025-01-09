@@ -68,7 +68,7 @@ function isTextMsg(msg) {
 }
 
 function isDataMsg(msg) {
-    return msg.type == 'data' || msg.type == 'markdata';
+    return msg.type == 'data' || msg.type == 'markdata' || msg.type == 'chart' || msg.type == 'echarts';
 }
 
 function isMarkMsg(msg) {

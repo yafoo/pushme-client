@@ -1,0 +1,300 @@
+const chart = {
+    randomColor() {
+        return `#${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`;
+    },
+    getYAxis(datas) {
+        const max_value = Math.max(...datas);
+        const getValuePow = (value) => {
+            let pow = 0;
+            while(value > 35) {
+                value /= 10;
+                pow++;
+            }
+            while(value < 4) {
+                value *= 10;
+                pow--;
+            }
+            return {value, pow};
+        };
+        const steps = [1, 2, 3, 5];
+        const lines = [4, 5, 6, 7];
+        const {value, pow} = getValuePow(max_value);
+        let step = 0;
+        let line = 0;
+        loop: for(let s of steps) {
+            for(let l of lines) {
+                if(s * l >= value) {
+                    step = s;
+                    line = l;
+                    break loop;
+                }
+            }
+        }
+
+        const marks = [];
+        while(line > 0) {
+            marks.push(Math.pow(10, pow) * step * line);
+            line--;
+        }
+        marks.push(0);
+        return marks;
+    },
+    getFontSize(width, dpr, normal = 8, max = 12) {
+        let font_size = width / 132 * normal;
+        if(font_size > max * dpr) {
+            font_size = max * dpr;
+        }
+        return font_size;
+    },
+    drawYAxis(canvas, y_axis) {
+        const total = y_axis.length - 1;
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        const ctx = canvas.getContext("2d");
+        ctx.save();
+        ctx.strokeStyle = '#eee';
+        y_axis.forEach((v, i) => {
+            ctx.beginPath();
+            const y = parseInt(height - (total - i) * height / total) - 0.5;
+            ctx.lineTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        });
+        ctx.restore();
+    },
+    drawYLabels(canvas, y_axis) {
+        const dpr = canvas.dpr;
+        const total = y_axis.length - 1;
+        const width = canvas.width;
+        const height = canvas.height;
+        const font_size = this.getFontSize(width, dpr, 6);
+        
+        const ctx = canvas.getContext("2d");
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.font = font_size + "px Arial";
+        ctx.fillStyle = "#333";
+        ctx.textAlign = 'start';
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2 * dpr;
+        y_axis.forEach((v, i) => {
+            const y = parseInt(height - (total - i) * height / total) - 0.5;
+            ctx.textBaseline = i == 0 ? 'top' : i == total ? 'bottom' : 'middle';
+            ctx.strokeText(v, 0, y);
+            ctx.fillText(v, 0, y);
+        });
+        ctx.restore();
+    },
+    drawXLabels(canvas, lables) {
+        const dpr = canvas.dpr;
+        const width = canvas.width;
+        const height = canvas.height;
+        const x_width = width / lables.length;
+        const font_size = this.getFontSize(width, dpr, 6);
+
+        const ctx = canvas.getContext("2d");
+        ctx.save();
+        ctx.globalAlpha = 0.8;
+        ctx.font = font_size + "px Arial";
+        ctx.strokeStyle = "#fff";
+        ctx.fillStyle = "#333";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.lineWidth = 2 * dpr;
+        lables.forEach((v, i) => {
+            const x = i * x_width + x_width / 2;
+            const y = height - 2 * dpr;
+            ctx.strokeText(v, x, y);
+            ctx.fillText(v, x, y);
+        });
+        ctx.restore();
+    },
+    drawBarChart(canvas, max_axis, datas, labels = []) {
+        const dpr = canvas.dpr;
+        const width = canvas.width;
+        const height = canvas.height;
+        const x_width = width / datas.length;
+        let bar_width = x_width * 0.8;
+        if(bar_width > 30 * dpr) {
+            bar_width = 30 * dpr;
+        }
+        const left = (x_width - bar_width) / 2;
+        const font_size = this.getFontSize(width, dpr);
+        const ctx = canvas.getContext("2d");
+        datas.forEach((value, i) => {
+            const x = i * x_width + left;
+            const y = height - value * height / max_axis;
+            ctx.fillStyle = "#46bc99";
+            ctx.fillRect(x, y, bar_width, height);
+
+            ctx.save();
+            const x_text = i * x_width + x_width / 2;
+            const y_text = y - 1 * dpr;
+            ctx.translate(x_text, y_text);
+            ctx.font = font_size + "px Arial";
+            ctx.fillStyle = "#333";
+            // ctx.textAlign = 'start';
+            // ctx.textBaseline = 'middle';
+            // ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2 * dpr;
+            ctx.strokeText(value, 0, 0);
+            ctx.fillText(value, 0, 0);
+            ctx.restore();
+        });
+    },
+    drawLineChart(canvas, max_axis, datas, labels = []) {
+        const dpr = canvas.dpr;
+        const width = canvas.width;
+        const height = canvas.height;
+        const x_width = width / datas.length;
+        const radius = 3 * dpr;
+        const font_size = this.getFontSize(width, dpr);
+        const ctx = canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.fillStyle = "#46bc99";
+        ctx.strokeStyle = '#46bc99';
+        datas.forEach((value, i) => {
+            const x = i * x_width + x_width / 2;
+            const y = height - value * height / max_axis;
+            ctx.lineWidth = 2 * dpr;
+            ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        let last_y = 0;
+        datas.forEach((value, i) => {
+            const x = i * x_width + x_width / 2;
+            const y = height - value * height / max_axis;
+            ctx.lineWidth = 2 * dpr;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.save();
+            const x_text = x;
+            let y_text = last_y >= y ? y - font_size * 0.8 : y + font_size * 0.8;
+            ctx.translate(x_text, y_text);
+            ctx.font = font_size + "px Arial";
+            ctx.fillStyle = "#333";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2 * dpr;
+            ctx.strokeText(value, 0, 0);
+            ctx.fillText(value, 0, 0);
+            ctx.restore();
+            last_y = y;
+        });
+    },
+    drawPieChart(canvas, datas, labels = []) {
+        const dpr = canvas.dpr;
+        const width = canvas.width;
+        const height = canvas.height;
+        const x = width / 2;
+        const y = height / 2;
+        const radius = height / 2 * 0.9;
+        const font_size = this.getFontSize(width, dpr);
+        const label_size = this.getFontSize(width, dpr, 6);
+        const ctx = canvas.getContext("2d");
+        let temp_angle = -90;
+        const total = datas.reduce((a, b) => a + b);
+        datas.forEach((value, i) => {
+            ctx.fillStyle = this.randomColor();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            let angle = value / total * 360;
+            const start_angle = temp_angle * Math.PI / 180;
+            const end_angle = (temp_angle + angle) * Math.PI / 180;
+            ctx.arc(x, y, radius, start_angle, end_angle);
+            ctx.fill();
+
+            //绘制文字
+            var txt_angle = temp_angle + 1 / 2 * angle;
+            const x_text = x + Math.cos(txt_angle * Math.PI / 180) * (radius/1.5);
+            const y_text = y + Math.sin(txt_angle * Math.PI / 180) * (radius/1.5);
+        
+            ctx.font = font_size + "px Arial";
+            ctx.fillStyle = "#333";
+            ctx.textBaseline = 'middle';
+            // if (txt_angle > -90 && txt_angle < 90) { //设置y轴左边的文字结束位置对齐，防止文字显示不全
+            //     ctx.textAlign = 'start';
+            // } else {
+            //     ctx.textAlign = 'end';
+            // }
+            ctx.textAlign = 'center';
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2 * dpr;
+            ctx.strokeText(value, x_text, y_text);
+            ctx.fillText(value, x_text, y_text); //填充文字
+
+            //绘制标签
+            if(labels[i]) {
+                ctx.save();
+                const x_label = x + Math.cos(txt_angle * Math.PI / 180) * (radius + 0.5 * dpr);
+                const y_label = y + Math.sin(txt_angle * Math.PI / 180) * (radius + 0.5 * dpr);
+                ctx.translate(x_label, y_label);
+                ctx.font = label_size + "px Arial";
+                ctx.fillStyle = "#333";
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.rotate(txt_angle * Math.PI / 180 + Math.PI / 2);
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 2 * dpr;
+                ctx.strokeText(labels[i], 0, 0);
+                ctx.fillText(labels[i], 0, 0);
+                ctx.restore();
+            }
+
+            temp_angle += angle;
+        });
+    },
+    drawChart(canvas, data) {
+        canvas.dpr = window.devicePixelRatio || 1;
+        const datas = data.list;
+        const labels = data.label;
+        if(data.type == 'bar') {
+            const y_axis = this.getYAxis(datas);
+            const max_axis = Math.max(...y_axis);
+            this.drawYAxis(canvas, y_axis);
+            this.drawBarChart(canvas, max_axis, datas);
+            this.drawYLabels(canvas, y_axis);
+            this.drawXLabels(canvas, labels);
+        } else if(data.type == 'line') {
+            const y_axis = this.getYAxis(datas);
+            const max_axis = Math.max(...y_axis);
+            this.drawYAxis(canvas, y_axis);
+            this.drawLineChart(canvas, max_axis, datas);
+            this.drawYLabels(canvas, y_axis);
+            this.drawXLabels(canvas, labels);
+        } else if(data.type == 'pie') {
+            this.drawPieChart(canvas, datas, labels);
+        }
+    },
+    parseChartData(str) {
+        const data = {type: 'bar', size: 10, list: [], label: []};
+
+        let temp = str.split(":");
+        if(temp.length > 1) {
+            const type = temp[0].split("|");
+            if(type.length > 1) {
+                data.type = type[0];
+                data.size = parseInt(type[1]);
+            } else if(~['bar', 'line', 'pie'].indexOf(type[0])) {
+                data.type = type[0];
+            } else {
+                data.size = parseInt(type[0]);
+            }
+            temp = temp[1];
+        }
+        temp.split(",").map(s => {
+            const v = s.split("/");
+            data.list.push(parseFloat(v[0]));
+            data.label.push(v[1] || '');
+        });
+        return data;
+    },
+}
