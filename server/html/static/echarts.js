@@ -25,14 +25,14 @@ const ECharts = {
         }
     },
     mounted() {
-        console.log('chart mounted');
+        console.log('echarts mounted');
         this.clacSize();
         this.$nextTick(() => {
             this.init();
         });
     },
     unmounted() {
-        console.log('chart unmounted');
+        console.log('echarts unmounted');
         this.chart && this.chart.dispose();
         this.chart = null;
         if(this.handleResize) {
