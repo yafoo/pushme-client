@@ -42,27 +42,21 @@ const ECharts = {
     methods: {
         init() {
             if(typeof(echarts) === 'undefined') {
-                if(document.getElementById('echarts')) {
+                if(document.getElementById('echarts-js')) {
                     setTimeout(() => {
                         this.init();
                     }, 100);
                     return;
                 }
-                console.log('load echarts');
+                console.log('load echarts js');
                 const script = document.createElement('script');
-                script.setAttribute('id', 'echarts');
+                script.setAttribute('id', 'echarts-js');
                 script.src = '/static/echarts.min.js';
                 script.onload = () => {
-                    console.log('echarts loaded');
+                    console.log('echarts js loaded');
                     this.init();
                 }
                 document.body.appendChild(script);
-                return;
-            }
-            if(!echarts.init) {
-                setTimeout(() => {
-                    this.init();
-                }, 100);
                 return;
             }
             this.chart = Vue.markRaw(echarts.init(this.$refs.chart));
