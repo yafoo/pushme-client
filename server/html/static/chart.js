@@ -10,6 +10,7 @@ const Chart = {
         return {
             height: 80,
             chart: null,
+            handleResize: null,
         }
     },
     watch: {
@@ -34,6 +35,9 @@ const Chart = {
         console.log('chart unmounted');
         this.chart && this.chart.dispose();
         this.chart = null;
+        if(this.handleResize) {
+            window.removeEventListener('resize', this.handleResize);
+        }
     },
     methods: {
         init() {
@@ -63,15 +67,18 @@ const Chart = {
             }
             this.chart = Vue.markRaw(echarts.init(this.$refs.chart));
             this.chart.setOption(this.option);
-            window.addEventListener('resize', () => {
-                if(!this.$refs.chart) {
-                    return;
+            if(!this.handleResize) {
+                this.handleResize = () => {
+                    if(!this.$refs.chart) {
+                        return;
+                    }
+                    this.clacSize();
+                    this.$nextTick(() => {
+                        this.chart.resize();
+                    });
                 }
-                this.clacSize();
-                this.$nextTick(() => {
-                    this.chart.resize();
-                });
-            });
+            }
+            window.addEventListener('resize', this.handleResize);
         },
         clacSize() {
             if(!this.$refs.chart) {
