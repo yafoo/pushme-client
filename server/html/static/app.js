@@ -79,6 +79,10 @@ function isChartMsg(msg) {
     return msg.type == 'chart';
 }
 
+function isEChartsMsg(msg) {
+    return msg.type == 'echarts';
+}
+
 function parseTitle(title='') {
     const reg = /^\[([iswf])\]/;
     const res = reg.exec(title);

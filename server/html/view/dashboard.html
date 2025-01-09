@@ -17,6 +17,7 @@
                         <div class="dashboard-date">{{message.date}}</div>
                         <div class="dashboard-markdown markdown" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
                         <div class="dashboard-chart" v-else-if="isChartMsg(message)"><chart :option="JSON.parse(message.content)"></chart></div>
+                        <div class="dashboard-echarts" v-else-if="isEChartsMsg(message)"><e-charts :option="JSON.parse(message.content)"></e-charts></div>
                         <div class="dashboard-content" v-else>{{message.content}}</div>
                     </div>
                 </div>
@@ -27,11 +28,11 @@
     <script src="/static/vue.global.js"></script>
     <script src="/static/markdown-it.min.js"></script>
     <script src="/static/app.js"></script>
-    <script src="/static/chart.js"></script>
+    <script src="/static/echarts.js"></script>
     <script>
         const {createApp} = Vue;
         const app = createApp({
-            components: {Chart},
+            components: {ECharts},
             data() {
                 return {
                     list: [],
@@ -57,10 +58,10 @@
             methods: {
                 init() {
                     bc.onmessage = e => {
-                        if(e.data.type == 'new_message' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail))) {
+                        if(e.data.type == 'new_message' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail) || isEChartsMsg(e.data.detail))) {
                             console.log('new_message', e.data.detail);
                             this.setMessage(e.data.detail);
-                        } else if(e.data.type == 'message_del' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail))) {
+                        } else if(e.data.type == 'message_del' && (isDataMsg(e.data.detail) || isChartMsg(e.data.detail) || isEChartsMsg(e.data.detail))) {
                             this.getList();
                         }
                     };
@@ -100,6 +101,9 @@
                 },
                 isChartMsg(msg) {
                     return isChartMsg(msg);
+                },
+                isEChartsMsg(msg) {
+                    return isEChartsMsg(msg);
                 },
                 renderMark(content) {
                     if(!this.md) {

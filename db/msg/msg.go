@@ -4,10 +4,10 @@ import "PushMeClient/db"
 
 var typeKey = "type in (?)"
 var textWhere = []string{"text", "markdown", ""}
-var dataWhere = []string{"data", "markdata", "chart"}
+var dataWhere = []string{"data", "markdata", "chart", "echarts"}
 
 func Add(data *db.Msg) db.Msg {
-	if data.Type == "data" || data.Type == "markdata" || data.Type == "chart" {
+	if data.Type == "data" || data.Type == "markdata" || data.Type == "chart" || data.Type == "echarts" {
 		res := db.Msg{}
 		db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
 		if res.ID > 0 {

@@ -1,4 +1,4 @@
-const Chart = {
+const ECharts = {
     template: `<div ref="chart" style="width: 100%; height:80px;" :style="{height: + height + 'px'}"></div>`,
     props: {
         option: {

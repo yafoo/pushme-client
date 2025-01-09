@@ -14,6 +14,7 @@
             <div class="message-date">{{message.date}}</div>
             <div class="message-content markdown" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
             <div class="message-content" v-else-if="isChartMsg(message)"><chart :option="JSON.parse(message.content)"></chart></div>
+            <div class="message-content" v-else-if="isEChartsMsg(message)"><e-charts :option="JSON.parse(message.content)"></e-charts></div>
             <div class="message-content" :class="message.type == 'data' ? 'data' : 'text'" v-else>{{message.content}}</div>
         </div>
         <div class="float-tools" v-if="id > 0">
@@ -24,11 +25,11 @@
     <script src="/static/vue.global.js"></script>
     <script src="/static/markdown-it.min.js"></script>
     <script src="/static/app.js"></script>
-    <script src="/static/chart.js"></script>
+    <script src="/static/echarts.js"></script>
     <script>
         const {createApp} = Vue;
         const app = createApp({
-            components: {Chart},
+            components: {ECharts},
             data() {
                 return {
                     id: 0,
@@ -88,6 +89,9 @@
                 },
                 isChartMsg(msg) {
                     return isChartMsg(msg);
+                },
+                isEChartsMsg(msg) {
+                    return isEChartsMsg(msg);
                 },
                 renderMark(content) {
                     if(!this.md) {

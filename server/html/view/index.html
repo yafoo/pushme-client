@@ -111,7 +111,7 @@
 
                     window.GoAddMessage(msg).then(newMsg => {
                         if(newMsg.id > 0) {
-                            if(isDataMsg(newMsg) || isChartMsg(newMsg)) {
+                            if(isDataMsg(newMsg) || isChartMsg(newMsg) || isEChartsMsg(newMsg)) {
                                 bc.postMessage({'type': 'new_message', 'detail': newMsg});
                             } else if(isTextMsg(newMsg)) {
                                 this.getList(1);
@@ -135,7 +135,7 @@
                 getDashboard() {
                     const list = [];
                     this.list.forEach(item => {
-                        if(isDataMsg(item) || isChartMsg(item)) {
+                        if(isDataMsg(item) || isChartMsg(item) || isEChartsMsg(item)) {
                             list.push({...item});
                         }
                     });
