@@ -111,9 +111,6 @@ func mergeChartData(first, second ChartData) ChartData {
 
 	if uint(len(merged.List)) > merged.Size {
 		start := len(merged.List) - int(merged.Size)
-		if start < 0 {
-			start = 0
-		}
 		merged.List = merged.List[start:]
 		merged.Label = merged.Label[start:]
 	}
@@ -143,6 +140,12 @@ func Add(data *db.Msg) db.Msg {
 			}
 			db.Db.Save(res)
 			return res
+		} else {
+			newData := parseChartData(data.Content)
+			jsonBytes, err := json.Marshal(newData)
+			if err == nil {
+				data.Content = string(jsonBytes)
+			}
 		}
 	}
 	db.Db.Save(data)
