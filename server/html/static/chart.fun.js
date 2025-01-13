@@ -68,13 +68,13 @@ const chart = {
         const total = y_axis.length - 1;
         const width = canvas.width;
         const height = canvas.height;
-        const font_size = this.getFontSize(width, dpr, 6);
+        const font_size = this.getFontSize(width, dpr, 6, 10);
         
         const ctx = canvas.getContext("2d");
         ctx.save();
         ctx.globalAlpha = 0.5;
         ctx.font = font_size + "px Arial";
-        ctx.fillStyle = "#333";
+        ctx.fillStyle = "#666";
         ctx.textAlign = 'start';
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 2 * dpr;
@@ -234,16 +234,23 @@ const chart = {
             //绘制标签
             if(labels[i]) {
                 ctx.save();
-                const x_label = x + Math.cos(txt_angle * Math.PI / 180) * (radius + 0.5 * dpr);
-                const y_label = y + Math.sin(txt_angle * Math.PI / 180) * (radius + 0.5 * dpr);
-                ctx.translate(x_label, y_label);
                 ctx.font = label_size + "px Arial";
                 ctx.fillStyle = "#333";
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.rotate(txt_angle * Math.PI / 180 + Math.PI / 2);
                 ctx.strokeStyle = "#fff";
                 ctx.lineWidth = 2 * dpr;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                let sapce = 0.5 * dpr;
+                let label_rotate = txt_angle * Math.PI / 180 + Math.PI / 2;console.log(labels[i], txt_angle);
+                if(15 < txt_angle && txt_angle < 165) {
+                    label_rotate -= Math.PI;
+                    ctx.textBaseline = 'top';
+                    sapce = 1.5 * dpr;
+                }
+                const x_label = x + Math.cos(txt_angle * Math.PI / 180) * (radius + sapce);
+                const y_label = y + Math.sin(txt_angle * Math.PI / 180) * (radius + sapce);
+                ctx.translate(x_label, y_label);
+                ctx.rotate(label_rotate);
                 ctx.strokeText(labels[i], 0, 0);
                 ctx.fillText(labels[i], 0, 0);
                 ctx.restore();
