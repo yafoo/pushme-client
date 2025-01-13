@@ -241,7 +241,7 @@ const chart = {
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
                 let sapce = 0.5 * dpr;
-                let label_rotate = txt_angle * Math.PI / 180 + Math.PI / 2;console.log(labels[i], txt_angle);
+                let label_rotate = txt_angle * Math.PI / 180 + Math.PI / 2;
                 if(15 < txt_angle && txt_angle < 165) {
                     label_rotate -= Math.PI;
                     ctx.textBaseline = 'top';
