@@ -197,7 +197,7 @@ ul>li {list-style: none;}
     height: 12px;
     line-height: 12px;
     padding: 4px 5px;
-    
+    float: right;
 }
 
 /* markdown */

@@ -13,6 +13,7 @@
             <h1 class="message-title"><span :class="'theme-' + parseTitle(message.title).theme"></span>{{parseTitle(message.title).title}}</h1>
             <div class="message-date">{{message.date}}</div>
             <div class="message-content markdown" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
+            <div class="message-content" v-else-if="isHtmlMsg(message)"><msg-html :content="message.content" :html-js="msgSetting.html_js"></msg-html></div>
             <div class="message-content" v-else-if="isChartMsg(message)"><chart :option="JSON.parse(message.content)"></chart></div>
             <div class="message-content" v-else-if="isEChartsMsg(message)"><e-charts :option="JSON.parse(message.content)"></e-charts></div>
             <div class="message-content" :class="message.type == 'data' ? 'data' : 'text'" v-else>{{message.content}}</div>
@@ -25,23 +26,38 @@
     <script src="/static/vue.global.js"></script>
     <script src="/static/markdown-it.min.js"></script>
     <script src="/static/app.js"></script>
+    <script src="/static/html.js"></script>
     <script src="/static/chart.js"></script>
     <script src="/static/echarts.js"></script>
+    <script src="/static/purify.min.js"></script>
     <script>
         const {createApp} = Vue;
         const app = createApp({
-            components: {Chart, ECharts},
+            components: {msgHtml: Html, Chart, ECharts},
             data() {
                 return {
                     id: 0,
                     message: {},
                     md: null,
+                    msgSetting: {
+                        html_js: false,
+                    },
                 }
             },
             mounted() {
-                this.init();
+                this.initSetting(() => {
+                    this.init();
+                });
             },
             methods: {
+                initSetting(callback) {
+                    window.GoMsgSetting().then(msg_setting => {
+                        this.msgSetting = msg_setting;
+                        if(callback) {
+                            callback();
+                        }
+                    });
+                },
                 init() {
                     if (query.get('id')) {
                         this.id = parseInt(query.get('id'));
@@ -63,7 +79,11 @@
                     });
                 },
                 setMessage(msg) {
-                    this.message = msg;
+                    const message = {...msg};
+                    if(!this.msgSetting.html_js) {
+                        message.content = DOMPurify.sanitize(message.content);
+                    }
+                    this.message = message;
                 },
                 delMessage() {
                     if(!this.id) {
@@ -93,6 +113,9 @@
                 },
                 isEChartsMsg(msg) {
                     return isEChartsMsg(msg);
+                },
+                isHtmlMsg(msg) {
+                    return isHtmlMsg(msg);
                 },
                 renderMark(content) {
                     if(!this.md) {

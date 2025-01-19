@@ -64,7 +64,7 @@ function WebConfirm(content, title, callback) {
 }
 
 function isTextMsg(msg) {
-    return !msg.type || msg.type == 'text' || msg.type == 'markdown';
+    return !msg.type || msg.type == 'text' || msg.type == 'markdown' || msg.type == 'html';
 }
 
 function isDataMsg(msg) {
@@ -81,6 +81,10 @@ function isChartMsg(msg) {
 
 function isEChartsMsg(msg) {
     return msg.type == 'echarts';
+}
+
+function isHtmlMsg(msg) {
+    return msg.type == 'html';
 }
 
 function parseTitle(title='') {

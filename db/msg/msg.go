@@ -8,7 +8,7 @@ import (
 )
 
 var typeKey = "type in (?)"
-var textWhere = []string{"text", "markdown", ""}
+var textWhere = []string{"text", "markdown", "html", ""}
 var dataWhere = []string{"data", "markdata", "chart", "echarts"}
 
 type ChartData struct {

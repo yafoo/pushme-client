@@ -139,6 +139,10 @@ func OpenDashboard(mWin Win) {
 	w.Run()
 }
 
+type MsgSetting struct {
+	HtmlJs bool `json:"html_js"`
+}
+
 func OpenMessage(id int, mWin Win) {
 	w := NewWin("消息内容", setting.BaseApi+"/view/message.html?id="+fmt.Sprint(id), 300, 500)
 	defer func() {
@@ -152,6 +156,9 @@ func OpenMessage(id int, mWin Win) {
 	})
 	w.Webview.Bind("GoDelMessage", func(id int) bool {
 		return dbMsg.Del(id)
+	})
+	w.Webview.Bind("GoMsgSetting", func() MsgSetting {
+		return MsgSetting{HtmlJs: setting.Setting.Other.HtmlJs}
 	})
 	w.Run()
 }

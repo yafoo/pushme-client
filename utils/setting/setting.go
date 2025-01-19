@@ -12,6 +12,7 @@ type SettingType struct {
 	Host   HostType   `json:"host"`
 	Repost RepostType `json:"repost"`
 	Notice NoticeType `json:"notice"`
+	Other  OtherType  `json:"other"`
 	System SystemType `json:"system"`
 }
 
@@ -40,6 +41,10 @@ type NoticeType struct {
 	Enable   bool   `json:"enable"`
 	Duration string `json:"duration"`
 	Audio    string `json:"audio"`
+}
+
+type OtherType struct {
+	HtmlJs bool `json:"html_js"`
 }
 
 type SystemType struct {
@@ -98,6 +103,7 @@ func GetSettingDefault() SettingType {
 		Duration: "short",
 		Audio:    "default",
 	}
+	other := OtherType{HtmlJs: false}
 	system := SystemType{
 		Enable: false,
 	}
@@ -106,6 +112,7 @@ func GetSettingDefault() SettingType {
 		Host:   host,
 		Repost: repost,
 		Notice: notice,
+		Other:  other,
 		System: system,
 	}
 
