@@ -506,6 +506,10 @@ ul>li {list-style: none;}
 .form-item {
     margin-bottom: 8px;
 }
+.form-label-tips {
+    font-size: 12px;
+    color: red;
+}
 .form-tips {
     font-size: 10px;
     color: gray;

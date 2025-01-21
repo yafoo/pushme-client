@@ -123,8 +123,16 @@ func GetIps() (ips []string) {
 	}
 
 	for _, a := range addrs {
-		if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+		if ipnet, ok := a.(*net.IPNet); ok {
 			if ipnet.IP.To4() != nil {
+				ip := ipnet.IP.String()
+				ips = append(ips, ip)
+			}
+		}
+	}
+	for _, a := range addrs {
+		if ipnet, ok := a.(*net.IPNet); ok {
+			if ipnet.IP.To4() == nil {
 				ip := ipnet.IP.String()
 				ips = append(ips, ip)
 			}

@@ -4,7 +4,9 @@ import (
 	"PushMeClient/utils"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
+	"strings"
 )
 
 type SettingType struct {
@@ -71,7 +73,28 @@ func InitSetting() {
 		panic("解析配置文件json出错：" + err.Error())
 	}
 
-	BaseApi = "http://" + Setting.Api.Ip + ":" + Setting.Api.Port
+	ip := FormatIP(Setting.Api.Ip)
+	if ip == "" {
+		ip = "127.0.0.1"
+	}
+	BaseApi = "http://" + ip + ":" + Setting.Api.Port
+}
+
+func FormatIP(ipStr string) string {
+	if strings.HasPrefix(ipStr, "[") && strings.HasSuffix(ipStr, "]") {
+		return ipStr
+	}
+
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return ""
+	}
+
+	if ip.To4() != nil {
+		return ipStr
+	}
+
+	return fmt.Sprintf("[%s]", ipStr)
 }
 
 func SaveSetting(setting SettingType) {
@@ -82,7 +105,7 @@ func SaveSetting(setting SettingType) {
 func GetSettingDefault() SettingType {
 	api := ApiType{
 		Enable: true,
-		Ip:     "127.0.0.1",
+		Ip:     "",
 		Port:   "3200",
 	}
 	host := HostType{

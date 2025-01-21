@@ -16,7 +16,7 @@
             <div class="setting-form" :scrollIntoView="current">
                 <div class="form-section" v-for="menu in formItem" :key="menu.key" :key="menu.key" :id="menu.key">
                     <div class="form-item" v-for="item in menu.items" :key="item.key">
-                        <div class="form-label">{{item.label}}</div>
+                        <div class="form-label">{{item.label}} <span class="form-label-tips" v-if="getLabelTips(menu, item)">{{getLabelTips(menu, item)}}</span></div>
                         <div class="form-content">
                             <input class="input" v-if="item.type == 'input'" v-model="form[menu.key][item.key]" />
                             <select class="select" v-else-if="item.type == 'select'" v-model="form[menu.key][item.key]">
@@ -47,10 +47,9 @@
                         <div class="form-tips" v-if="item.tips">{{item.tips}}</div>
                     </div>
 
-                    <div class="section-tips" v-if="menu.key == 'api' && form && form.api.enable && form.api.ip && form.api.port">
-                        <div class="form-label">本机接口示例：</div>
-                        <div class="form-link">http://{{form.api.ip}}:{{form.api.port}}</div>
-                        <div class="form-link" v-for="ip in ips" :key="ip">http://{{ip}}:{{form.api.port}}</div>
+                    <div class="section-tips" v-if="menu.key == 'api' && form && form.api.enable && form.api.port">
+                        <div class="form-label">本机接口地址示例：</div>
+                        <div class="form-link" v-for="ip in ips" :key="ip">http://{{formatIP(ip)}}:{{form.api.port}}</div>
                     </div>
                     <div class="section-tips" v-if="menu.key == 'system'">
                         <div class="form-label">版本：<span class="form-text">{{version}}</span> <div class="button button-mini" @click="checkVersion">检查更新</div></div>
@@ -85,7 +84,7 @@
                     formItem: [
                         {name: '接口服务', key: 'api', items: [
                             {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
-                            {label: '监听IP', key: 'ip', type: 'input', tips: '默认：127.0.0.1'},
+                            {label: '监听IP', key: 'ip', type: 'input', tips: '默认：为空，支持本机所有IP'},
                             {label: '监听端口', key: 'port', type: 'input', tips: '默认：3200'},
                         ]},
                         {name: '自建服务', key: 'host', items: [
@@ -140,8 +139,8 @@
                 }
             },
             mounted() {
-                this.getSetting();
                 this.getIps();
+                this.getSetting();
                 this.getVersion();
                 this.getMcount();
             },
@@ -154,8 +153,11 @@
                 },
                 getIps() {
                     window.GoGetIps().then(res => {
-                        this.ips = res.filter(ip => !~['198.18.0.1', '192.168.195.225'].indexOf(ip));
+                        this.ips = [...res];
                     });
+                },
+                formatIP(ip) {
+                    return ~ip.indexOf(':') ? `[${ip}]` : ip;
                 },
                 getVersion() {
                     window.GoGetVersion().then(res => {
@@ -172,6 +174,17 @@
                         this.form = res;
                         WebToast('恢复默认值，保存后生效！');
                     });
+                },
+                getLabelTips(menu, item) {
+                    let tips = '';
+                    if(item.key == 'ip') {
+                        if(this.form[menu.key].ip === '') {
+                            tips = '置空，所有本机ip有效！';
+                        } else if(!~this.ips.indexOf(this.form[menu.key].ip.replace('[', '').replace(']', ''))) {
+                            tips = '非本机IP，请确认！';
+                        }
+                    }
+                    return tips ? `(${tips})` : '';
                 },
                 saveSetting() {
                     window.GoSaveSetting(this.form).then(res => {

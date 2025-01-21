@@ -124,6 +124,7 @@ func Start(callback func(msg db.Msg)) {
 		}
 	})
 
-	fmt.Println("http started on " + setting.BaseApi)
-	http.ListenAndServe(":"+setting.Setting.Api.Port, nil)
+	addr := setting.FormatIP(setting.Setting.Api.Ip) + ":" + setting.Setting.Api.Port
+	fmt.Println("http started on " + addr)
+	http.ListenAndServe(addr, nil)
 }
