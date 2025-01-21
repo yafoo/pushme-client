@@ -14,7 +14,7 @@
             <template v-for="message in list" :key="message.id">
                 <div class="list-item" @click="openMessage(message)" v-if="isTextMsg(message)" :class="'theme-' + parseTitle(message.title).theme">
                     <div class="list-title">{{parseTitle(message.title).title}}</div>
-                    <div class="list-content" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
+                    <div class="list-content" v-if="isMarkMsg(message) || isHtmlMsg(message)" v-html="renderMark(message.content)"></div>
                     <div class="list-content" v-else>{{message.content}}</div>
                     <div class="list-date">{{message.date}}</div>
                 </div>
@@ -149,6 +149,9 @@
                 },
                 isMarkMsg(msg) {
                     return isMarkMsg(msg);
+                },
+                isHtmlMsg(msg) {
+                    return isHtmlMsg(msg);
                 },
                 renderMark(content) {
                     if(!this.md) {

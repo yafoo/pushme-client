@@ -140,7 +140,7 @@ func Add(data *db.Msg) db.Msg {
 			}
 			db.Db.Save(res)
 			return res
-		} else {
+		} else if data.Type == "chart" {
 			newData := parseChartData(data.Content)
 			jsonBytes, err := json.Marshal(newData)
 			if err == nil {
