@@ -18,13 +18,15 @@ const chart = {
         
         const max_value = Math.max(...datas);
         const min_value = Math.min(...datas);
-        let temp_value = 1;
+        let temp_value = 0;
         if(max_value > 0 && min_value > 0) {
-          temp_value = max_value;
+            temp_value = max_value;
         } else if(max_value < 0 && min_value < 0) {
-          temp_value = -min_value;
-        } else if(max_value != 0 && min_value != 0) {
-          temp_value = max_value - min_value;
+            temp_value = -min_value;
+        } else if(max_value == 0 && min_value == 0) {
+            temp_value = 1;
+        } else {
+            temp_value = max_value - min_value;
         }
         
         const {value, pow} = getValuePow(temp_value);
@@ -40,7 +42,7 @@ const chart = {
                     step = s;
                     line = l;
                     if(!~except.indexOf(s * l)) {
-                      break loop;
+                        break loop;
                     }
                 }
             }
