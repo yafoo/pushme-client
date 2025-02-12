@@ -6,21 +6,21 @@ const chart = {
         const max_value = Math.max(...datas);
         const getValuePow = (value) => {
             let pow = 0;
-            while(value > 35) {
+            while(value >= 40) {
                 value /= 10;
                 pow++;
             }
-            while(value < 4) {
+            while(value < 4 && value > 0) {
                 value *= 10;
                 pow--;
             }
             return {value, pow};
         };
         const steps = [1, 2, 3, 5];
-        const lines = [4, 5, 6, 7];
+        const lines = [4, 5, 6, 7, 8];
         const {value, pow} = getValuePow(max_value);
-        let step = 0;
-        let line = 0;
+        let step = 1;
+        let line = 4;
         loop: for(let s of steps) {
             for(let l of lines) {
                 if(s * l >= value) {
@@ -280,28 +280,5 @@ const chart = {
         } else if(data.type == 'pie') {
             this.drawPieChart(canvas, datas, labels);
         }
-    },
-    parseChartData(str) {
-        const data = {type: 'bar', size: 10, list: [], label: []};
-
-        let temp = str.split(":");
-        if(temp.length > 1) {
-            const type = temp[0].split("|");
-            if(type.length > 1) {
-                data.type = type[0];
-                data.size = parseInt(type[1]);
-            } else if(~['bar', 'line', 'pie'].indexOf(type[0])) {
-                data.type = type[0];
-            } else {
-                data.size = parseInt(type[0]);
-            }
-            temp = temp[1];
-        }
-        temp.split(",").map(s => {
-            const v = s.split("/");
-            data.list.push(parseFloat(v[0]));
-            data.label.push(v[1] || '');
-        });
-        return data;
     },
 }
