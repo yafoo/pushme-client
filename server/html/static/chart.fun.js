@@ -3,7 +3,6 @@ const chart = {
         return `#${Math.floor(Math.random() * 0xffffff).toString(16).padEnd(6, "0")}`;
     },
     getYAxis(datas) {
-        const max_value = Math.max(...datas);
         const getValuePow = (value) => {
             let pow = 0;
             while(value >= 40) {
@@ -16,28 +15,61 @@ const chart = {
             }
             return {value, pow};
         };
+        
+        const max_value = Math.max(...datas);
+        const min_value = Math.min(...datas);
+        let temp_value = 1;
+        if(max_value > 0 && min_value > 0) {
+          temp_value = max_value;
+        } else if(max_value < 0 && min_value < 0) {
+          temp_value = -min_value;
+        } else if(max_value != 0 && min_value != 0) {
+          temp_value = max_value - min_value;
+        }
+        
+        const {value, pow} = getValuePow(temp_value);
+        
         const steps = [1, 2, 3, 5];
         const lines = [4, 5, 6, 7, 8];
-        const {value, pow} = getValuePow(max_value);
+        const except = [14, 16, 21, 24];
         let step = 1;
-        let line = 4;
+        let line = 5;
         loop: for(let s of steps) {
             for(let l of lines) {
                 if(s * l >= value) {
                     step = s;
                     line = l;
-                    break loop;
+                    if(!~except.indexOf(s * l)) {
+                      break loop;
+                    }
                 }
             }
         }
 
-        const marks = [];
+        const list = [];
+        const step_value = Math.pow(10, pow) * step;
+        //偏移
+        let offset = 0;
+        while(min_value < offset) {
+            offset -= step_value;
+        }
+
         while(line > 0) {
-            marks.push(Math.pow(10, pow) * step * line);
+            let axis = step_value * line;
+            if(pow < 0) {
+                axis = parseFloat(axis.toFixed(-pow));
+            }
+            
+            list.push(axis + offset);
             line--;
         }
-        marks.push(0);
-        return marks;
+        list.push(0 + offset);
+
+        //修正
+        while(list[0] < max_value) {
+            list.unshift(list[0] + step_value);
+        }
+        return list;
     },
     getFontSize(width, dpr, normal = 8, max = 12) {
         let font_size = width / 132 * normal;
