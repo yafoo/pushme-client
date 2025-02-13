@@ -70,7 +70,9 @@
                     });
                     window.GoOnMounted();
 
-                    this.checkVersion();
+                    setTimeout(() => {
+                        this.checkVersion();
+                    }, 5000);
                 },
                 getList(page = 1) {
                     this.page = page;
