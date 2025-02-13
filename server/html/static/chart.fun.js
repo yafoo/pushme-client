@@ -90,7 +90,7 @@ const chart = {
         ctx.strokeStyle = '#eee';
         y_axis.forEach((v, i) => {
             ctx.beginPath();
-            const y = parseInt(height - (total - i) * height / total) - 0.5;
+            const y = parseInt(i * height / total) + (i == 0 ? 0.5 : -0.5);
             ctx.lineTo(0, y);
             ctx.lineTo(width, y);
             ctx.stroke();
@@ -113,7 +113,7 @@ const chart = {
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 2 * dpr;
         y_axis.forEach((v, i) => {
-            const y = parseInt(height - (total - i) * height / total) - 0.5;
+            const y = parseInt(height - (total - i) * height / total) + (i == 0 ? dpr : 0);
             ctx.textBaseline = i == 0 ? 'top' : i == total ? 'bottom' : 'middle';
             ctx.strokeText(v, 0, y);
             ctx.fillText(v, 0, y);
@@ -144,7 +144,9 @@ const chart = {
         });
         ctx.restore();
     },
-    drawBarChart(canvas, max_axis, datas, labels = []) {
+    drawBarChart(canvas, y_axis, datas) {
+        const max_axis = Math.max(...y_axis);
+        const min_axis = Math.min(...y_axis);
         const dpr = canvas.dpr;
         const width = canvas.width;
         const height = canvas.height;
@@ -156,31 +158,35 @@ const chart = {
         const left = (x_width - bar_width) / 2;
         const font_size = this.getFontSize(width, dpr);
         const ctx = canvas.getContext("2d");
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2 * dpr;
         datas.forEach((value, i) => {
             const x = i * x_width + left;
-            const y = height - value * height / max_axis;
+            const y = height - (value - min_axis) * height / (max_axis - min_axis);
+            const bar_height = height * value / (max_axis - min_axis);
             ctx.fillStyle = "#46bc99";
-            ctx.fillRect(x, y, bar_width, height);
+            ctx.fillRect(x, y, bar_width, bar_height);
+
+            if(value == 0) {
+                return;
+            }
 
             ctx.save();
             const x_text = i * x_width + x_width / 2;
-            const y_text = y - 1 * dpr;
+            const y_text = value >= 0 ? y - 1 * dpr : y + 1 * dpr;
             ctx.translate(x_text, y_text);
             ctx.font = font_size + "px Arial";
             ctx.fillStyle = "#333";
-            // ctx.textAlign = 'start';
-            // ctx.textBaseline = 'middle';
-            // ctx.rotate(-Math.PI / 2);
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2 * dpr;
+            ctx.textBaseline = value >= 0 ? 'bottom' : 'top';
             ctx.strokeText(value, 0, 0);
             ctx.fillText(value, 0, 0);
             ctx.restore();
         });
     },
-    drawLineChart(canvas, max_axis, datas, labels = []) {
+    drawLineChart(canvas, y_axis, datas) {
+        const max_axis = Math.max(...y_axis);
+        const min_axis = Math.min(...y_axis);
         const dpr = canvas.dpr;
         const width = canvas.width;
         const height = canvas.height;
@@ -193,7 +199,7 @@ const chart = {
         ctx.strokeStyle = '#46bc99';
         datas.forEach((value, i) => {
             const x = i * x_width + x_width / 2;
-            const y = height - value * height / max_axis;
+            const y = height - (value - min_axis) * height / (max_axis - min_axis);
             ctx.lineWidth = 2 * dpr;
             ctx.lineTo(x, y);
         });
@@ -202,7 +208,7 @@ const chart = {
         let last_y = 0;
         datas.forEach((value, i) => {
             const x = i * x_width + x_width / 2;
-            const y = height - value * height / max_axis;
+            const y = height - (value - min_axis) * height / (max_axis - min_axis);
             ctx.lineWidth = 2 * dpr;
             ctx.beginPath();
             ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -235,12 +241,12 @@ const chart = {
         const label_size = this.getFontSize(width, dpr, 6);
         const ctx = canvas.getContext("2d");
         let temp_angle = -90;
-        const total = datas.reduce((a, b) => a + b);
+        const total = datas.reduce((a, b) => Math.abs(a) + Math.abs(b));
         datas.forEach((value, i) => {
-            ctx.fillStyle = this.randomColor();
+            ctx.fillStyle = total > 0 ? this.randomColor() : '#f9f9f9';
             ctx.beginPath();
             ctx.moveTo(x, y);
-            let angle = value / total * 360;
+            let angle = total > 0 ? Math.abs(value) / total * 360 : 360 / datas.length;
             const start_angle = temp_angle * Math.PI / 180;
             const end_angle = (temp_angle + angle) * Math.PI / 180;
             ctx.arc(x, y, radius, start_angle, end_angle);
@@ -299,16 +305,14 @@ const chart = {
         const labels = data.label;
         if(data.type == 'bar') {
             const y_axis = this.getYAxis(datas);
-            const max_axis = Math.max(...y_axis);
             this.drawYAxis(canvas, y_axis);
-            this.drawBarChart(canvas, max_axis, datas);
+            this.drawBarChart(canvas, y_axis, datas);
             this.drawYLabels(canvas, y_axis);
             this.drawXLabels(canvas, labels);
         } else if(data.type == 'line') {
             const y_axis = this.getYAxis(datas);
-            const max_axis = Math.max(...y_axis);
             this.drawYAxis(canvas, y_axis);
-            this.drawLineChart(canvas, max_axis, datas);
+            this.drawLineChart(canvas, y_axis, datas);
             this.drawYLabels(canvas, y_axis);
             this.drawXLabels(canvas, labels);
         } else if(data.type == 'pie') {
