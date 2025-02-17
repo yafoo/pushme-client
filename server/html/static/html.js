@@ -8,9 +8,9 @@ const Html = {
     computed: {
         doc() {
             if(~this.content.indexOf('<body') && ~this.content.indexOf('</body>')) {
-                return this.content;
+                return `<style>html::-webkit-scrollbar{width:0;height:0;}html{overflow-y:hidden;}</style>${this.content}`;
             } else {
-                return `<style>body::-webkit-scrollbar{width:0;}body{padding:0;margin:0;color:#333333;font:14px Helvetica Neue,Helvetica,PingFang SC,Microsoft YaHei,Tahoma,Arial,sans-serif;line-height:1.6;}body>div{overflow:hidden;}</style><body><div>${this.content}</div></body>`;
+                return `<style>html::-webkit-scrollbar{width:0;height:0;}html{overflow-y:hidden;}body{padding:0;margin:0;color:#333333;font:14px Helvetica Neue,Helvetica,PingFang SC,Microsoft YaHei,Tahoma,Arial,sans-serif;line-height:1.6;}</style><body>${this.content}</body>`;
             }
         }
     },
@@ -37,7 +37,7 @@ const Html = {
             this.handleResize();
         },
         handleResize() {
-            const height = this.$refs.html.contentWindow.document.body.scrollHeight;
+            const height = this.$refs.html.contentWindow.document.documentElement.scrollHeight;
             this.height = height + 'px';
             console.log('handleResize', height);
         },

@@ -81,7 +81,11 @@
                 setMessage(msg) {
                     const message = {...msg};
                     if(!this.msgSetting.html_js) {
-                        message.content = DOMPurify.sanitize(message.content);
+                        let content = DOMPurify.sanitize(message.content);
+                        if(~message.content.indexOf('<body') && ~message.content.indexOf('</body>')) {
+                            content = `<body>${content}</body>`;;
+                        }
+                        message.content = content;
                     }
                     this.message = message;
                 },
