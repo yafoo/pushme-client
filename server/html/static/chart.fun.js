@@ -205,7 +205,6 @@ const chart = {
         });
         ctx.stroke();
 
-        let last_y = 0;
         datas.forEach((value, i) => {
             const x = i * x_width + x_width / 2;
             const y = height - (value - min_axis) * height / (max_axis - min_axis);
@@ -216,7 +215,10 @@ const chart = {
 
             ctx.save();
             const x_text = x;
-            let y_text = last_y >= y ? y - font_size * 0.8 : y + font_size * 0.8;
+            const left_value = i == 0 ? value : datas[i - 1];
+            const right_value = i == datas.length - 1 ? value : datas[i + 1];
+            const middle_value = (left_value + right_value) / 2;
+            let y_text = value < middle_value ? y + font_size * 0.8 : y - font_size * 0.8;
             ctx.translate(x_text, y_text);
             ctx.font = font_size + "px Arial";
             ctx.fillStyle = "#333";
@@ -227,7 +229,6 @@ const chart = {
             ctx.strokeText(value, 0, 0);
             ctx.fillText(value, 0, 0);
             ctx.restore();
-            last_y = y;
         });
     },
     drawPieChart(canvas, datas, labels = []) {
