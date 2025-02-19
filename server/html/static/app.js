@@ -97,20 +97,13 @@ function parseTitle(title='') {
     }
 }
 
-function WebCheckVersion(tips=false) {
-    window.GoCheckVersion().then(res => {
-        console.log('WebCheckVersion:', res);
-        if(res) {
-            if(res.substring(0, 1) == '{') {
-                res = JSON.parse(res);
-                WebConfirm(res.update + '\n点击确定，打开下载链接', '发现新版本' + res.version, action => {
-                    action == "ok" && window.open('https://github.com/yafoo/pushme-client/releases');
-                });
-            } else {
-                tips && WebToast(res);
-            }
-        } else {
-            tips && WebToast('当前已是最新版本！');
-        }
-    });
+function WebCheckVersion(res, tips=false) {
+    console.log('WebCheckVersion:', res);
+    if(res && res.update) {
+        WebConfirm(res.update + '\n点击确定，打开下载链接', '发现新版本' + res.version, action => {
+            action == "ok" && window.open('https://github.com/yafoo/pushme-client/releases');
+        });
+    } else {
+        tips && WebToast('当前已是最新版本！');
+    }
 }

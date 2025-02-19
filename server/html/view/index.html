@@ -70,9 +70,7 @@
                     });
                     window.GoOnMounted();
 
-                    setTimeout(() => {
-                        this.checkVersion();
-                    }, 5000);
+                    this.checkVersion();
                 },
                 getList(page = 1) {
                     this.page = page;
@@ -240,7 +238,7 @@
                     this.plugin && this.plugin.postMessage && this.plugin.postMessage(msg);
                 },
                 checkVersion() {
-                    WebCheckVersion();
+                    window.GoCheckVersion();
                 },
             }
         }).mount('#app');

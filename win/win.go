@@ -70,8 +70,8 @@ func NewWin(title string, url string, width int, height int) Win {
 	w.Webview.Bind("GoGetVersion", func() string {
 		return constant.AppVersion
 	})
-	w.Webview.Bind("GoCheckVersion", func() string {
-		return CheckVersion(w)
+	w.Webview.Bind("GoCheckVersion", func() {
+		go CheckVersion(w)
 	})
 	return w
 }
@@ -298,5 +298,8 @@ func CheckVersion(w Win) string {
 		},
 	}
 	result := req.Post()
+	w.Webview.Dispatch(func() {
+		w.Webview.Eval("WebCheckVersion(" + result + ");")
+	})
 	return result
 }
