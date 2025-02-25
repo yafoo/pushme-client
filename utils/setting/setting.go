@@ -37,6 +37,8 @@ type RepostType struct {
 	Enable bool   `json:"enable"`
 	Url    string `json:"url"`
 	Method string `json:"method"`
+	Limit  string `json:"limit"`
+	Omit   string `json:"omit"`
 }
 
 type NoticeType struct {
@@ -120,6 +122,8 @@ func GetSettingDefault() SettingType {
 		Enable: false,
 		Url:    "",
 		Method: "POST/JSON",
+		Limit:  "",
+		Omit:   "",
 	}
 	notice := NoticeType{
 		Enable:   true,

@@ -10,6 +10,7 @@ import (
 	"PushMeClient/utils/sys"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	webview "github.com/webview/webview_go"
 )
@@ -249,9 +250,45 @@ func OpenPluginEdit(id int, mWin Win) {
 	w.Run()
 }
 
+func containsAny(title string, keywords []string) bool {
+	lowerTitle := strings.ToLower(title)
+	for _, keyword := range keywords {
+		if strings.Contains(lowerTitle, strings.ToLower(keyword)) {
+			return true
+		}
+	}
+	return false
+}
+
+func filterEmpty(keywords []string) []string {
+	var result []string
+	for _, keyword := range keywords {
+		if strings.TrimSpace(keyword) != "" {
+			result = append(result, keyword)
+		}
+	}
+	return result
+}
+
 func RepostMessage(msg db.Msg, w Win) {
 	if !setting.Setting.Repost.Enable || setting.Setting.Repost.Url == "" {
 		return
+	}
+
+	if setting.Setting.Repost.Limit != "" {
+		limitKeywords := filterEmpty(strings.Split(setting.Setting.Repost.Limit, "|"))
+		containsAnyLimitKeyword := len(limitKeywords) == 0 || containsAny(msg.Title, limitKeywords)
+		if !containsAnyLimitKeyword {
+			return
+		}
+	}
+
+	if setting.Setting.Repost.Omit != "" {
+		omitKeywords := filterEmpty(strings.Split(setting.Setting.Repost.Omit, "|"))
+		containsNoOmitKeywords := len(omitKeywords) == 0 || !containsAny(msg.Title, omitKeywords)
+		if !containsNoOmitKeywords {
+			return
+		}
 	}
 
 	defer func() {
