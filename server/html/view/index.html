@@ -14,7 +14,8 @@
             <template v-for="message in list" :key="message.id">
                 <div class="list-item" @click="openMessage(message)" v-if="isTextMsg(message)" :class="'theme-' + parseTitle(message.title).theme">
                     <div class="list-title">{{parseTitle(message.title).title}}</div>
-                    <div class="list-content" v-if="isMarkMsg(message) || isHtmlMsg(message)" v-html="renderMark(message.content)"></div>
+                    <div class="list-content" v-if="isMarkMsg(message)" v-html="renderMark(message.content)"></div>
+                    <div class="list-content" v-else-if="isHtmlMsg(message)" v-html="renderMark(removeStyleScript(message.content))"></div>
                     <div class="list-content" v-else>{{message.content}}</div>
                     <div class="list-date">{{message.date}}</div>
                 </div>
@@ -117,7 +118,11 @@
                                 this.getList(1);
                                 const titles = parseTitle(newMsg.title);
                                 const title = ({'': '', i: '[info]', s: '[success]', f: '[failure]', w: '[warning]'})[titles.theme] + ' ' + titles.title;
-                                const content = newMsg.content.replace(/\s+/g, ' ').replace(/[#*]+\s/g, '').replace(/<[^>]+>|&[^>]+;/g, '');
+                                let content = newMsg.content;
+                                if(newMsg.type == 'html') {
+                                    content = this.removeStyleScript(newMsg.content);
+                                }
+                                content = content.replace(/\s+/g, ' ').replace(/[#*]+\s/g, '').replace(/<[^>]+>|&[^>]+;/g, '');
                                 window.GoNotification({...newMsg, title, content});
                             }
 
@@ -158,6 +163,9 @@
                         this.md = markdownit({html: true, linkify: false});
                     }
                     return this.md.renderInline(content).replace(/<[^>]+>|&[^>]+;/g, '').replace(/[#*]+\s/g, '');
+                },
+                removeStyleScript(html) {
+                    return html.replace(/<(style|script)[^>]*>[\s\S]*?<\/\1>|<\s*(style|script)[^>]*\/>/gi, '');
                 },
                 parseTitle(title) {
                     return parseTitle(title);
