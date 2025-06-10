@@ -172,16 +172,18 @@ const chart = {
                 return;
             }
 
-            ctx.save();
-            const x_text = i * x_width + x_width / 2;
-            const y_text = value >= 0 ? y - 1 * dpr : y + 1 * dpr;
-            ctx.translate(x_text, y_text);
-            ctx.font = font_size + "px Arial";
-            ctx.fillStyle = "#333";
-            ctx.textBaseline = value >= 0 ? 'bottom' : 'top';
-            ctx.strokeText(value, 0, 0);
-            ctx.fillText(value, 0, 0);
-            ctx.restore();
+            if(value != 0) {
+                ctx.save();
+                const x_text = i * x_width + x_width / 2;
+                const y_text = value >= 0 ? y - 1 * dpr : y + 1 * dpr;
+                ctx.translate(x_text, y_text);
+                ctx.font = font_size + "px Arial";
+                ctx.fillStyle = "#333";
+                ctx.textBaseline = value >= 0 ? 'bottom' : 'top';
+                ctx.strokeText(value, 0, 0);
+                ctx.fillText(value, 0, 0);
+                ctx.restore();
+            }
         });
     },
     drawLineChart(canvas, y_axis, datas) {
@@ -213,22 +215,24 @@ const chart = {
             ctx.arc(x, y, radius, 0, Math.PI * 2);
             ctx.fill();
 
-            ctx.save();
-            const x_text = x;
-            const left_value = i == 0 ? value : datas[i - 1];
-            const right_value = i == datas.length - 1 ? value : datas[i + 1];
-            const middle_value = (left_value + right_value) / 2;
-            let y_text = value < middle_value ? y + font_size * 0.8 : y - font_size * 0.8;
-            ctx.translate(x_text, y_text);
-            ctx.font = font_size + "px Arial";
-            ctx.fillStyle = "#333";
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2 * dpr;
-            ctx.strokeText(value, 0, 0);
-            ctx.fillText(value, 0, 0);
-            ctx.restore();
+            if(value != 0) {
+                ctx.save();
+                const x_text = x;
+                const left_value = i == 0 ? value : datas[i - 1];
+                const right_value = i == datas.length - 1 ? value : datas[i + 1];
+                const middle_value = (left_value + right_value) / 2;
+                let y_text = value < middle_value ? y + font_size * 0.8 : y - font_size * 0.8;
+                ctx.translate(x_text, y_text);
+                ctx.font = font_size + "px Arial";
+                ctx.fillStyle = "#333";
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 2 * dpr;
+                ctx.strokeText(value, 0, 0);
+                ctx.fillText(value, 0, 0);
+                ctx.restore();
+            }
         });
     },
     drawPieChart(canvas, datas, labels = []) {
