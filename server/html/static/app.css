@@ -291,6 +291,7 @@ ul>li {list-style: none;}
     box-shadow: 0 3px 5px rgba(0,0,0,.01);
     line-height: 1.4;
     cursor: pointer;
+    user-select: text;
 }
 .list-item.theme-i {
     border-left: 4px solid #AAAAAA;
@@ -384,6 +385,7 @@ ul>li {list-style: none;}
 .message-content.text,
 .message-content.data {
     white-space: pre-wrap;
+    word-break: break-word;
 }
 .message-content.data {
     font-size: 18px;
