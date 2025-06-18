@@ -98,7 +98,9 @@
                     });
                 },
                 openMessage(msg) {
-                    window.GoOpenMessage(msg.id);
+                    if(window.getSelection().toString() === '') {
+                        window.GoOpenMessage(msg.id);
+                    }
                 },
                 newMessage(msg) {
                     if(this.plugin) {

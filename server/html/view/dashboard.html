@@ -79,7 +79,9 @@
                     });
                 },
                 openMessage(msg) {
-                    window.GoOpenMessage(msg.id);
+                    if(window.getSelection().toString() === '') {
+                        window.GoOpenMessage(msg.id);
+                    }
                 },
                 updateMessage(msg) {
                     let is_update = false;
