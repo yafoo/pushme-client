@@ -165,7 +165,7 @@ const chart = {
             const x = i * x_width + left;
             const y = height - (value - min_axis) * height / (max_axis - min_axis);
             const bar_height = height * value / (max_axis - min_axis);
-            ctx.fillStyle = "#46bc99";
+            ctx.fillStyle = i == 0 ? "#46bc99" : this.randomColor();
             ctx.fillRect(x, y, bar_width, bar_height);
 
             if(value == 0) {
@@ -248,7 +248,7 @@ const chart = {
         let temp_angle = -90;
         const total = datas.reduce((a, b) => Math.abs(a) + Math.abs(b));
         datas.forEach((value, i) => {
-            ctx.fillStyle = total > 0 ? this.randomColor() : '#f9f9f9';
+            ctx.fillStyle = total > 0 ? (i == 0 ? "#46bc99" : this.randomColor()) : '#f9f9f9';
             ctx.beginPath();
             ctx.moveTo(x, y);
             let angle = total > 0 ? Math.abs(value) / total * 360 : 360 / datas.length;
