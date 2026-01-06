@@ -184,7 +184,7 @@
                 },
                 initHost(host) {
                     if(host) {
-                        if(!host.enable || !host.protocol || !host.ip || !host.port || !host.push_key) {
+                        if(!host.enable || !host.ip || !host.port || !host.push_key) {
                             return WebToast('自建服务参数配置不全', {...this.host});
                         }
                         this.host = host;
@@ -199,7 +199,8 @@
                         !~ip.indexOf('[') && (ip = `[${ip}]`);
                         !~ip.indexOf('[[') && (ip = `[${ip}]`);
                     }
-                    const url = `${this.host.protocol}://${ip}:${this.host.port}`;
+                    const protocol = !this.host.tls || this.host.tls == "无证书" ? "ws" : "wss";
+                    const url = `${protocol}://${ip}:${this.host.port}`;
                     const sub_topic = this.host.push_key;
                     const client_id = 'pc_' + sub_topic;
                     const options = {

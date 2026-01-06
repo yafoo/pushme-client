@@ -26,7 +26,7 @@ type ApiType struct {
 
 type HostType struct {
 	Enable     bool   `json:"enable"`
-	Protocol   string `json:"protocol"`
+	Tls        string `json:"tls"`
 	Ip         string `json:"ip"`
 	Port       string `json:"port"`
 	OfflineMsg bool   `json:"offline_msg"`
@@ -112,9 +112,9 @@ func GetSettingDefault() SettingType {
 	}
 	host := HostType{
 		Enable:     false,
-		Protocol:   "ws",
+		Tls:        "无证书",
 		Ip:         "",
-		Port:       "3010",
+		Port:       "3100",
 		OfflineMsg: false,
 		PushKey:    "",
 	}

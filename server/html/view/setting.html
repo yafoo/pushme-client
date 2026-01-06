@@ -26,6 +26,9 @@
                                 <template v-else-if="item.key == 'offline_msg'">
                                     <option v-for="val in offlines" :key="val" :value="val">{{val ? '接收' : '不接收'}}</option>
                                 </template>
+                                <template v-else-if="item.key == 'tls'">
+                                    <option v-for="val in tlsOptions" :key="val" :value="val">{{val}}</option>
+                                </template>
                                 <template v-else-if="item.key == 'html_js'">
                                     <option v-for="val in enables" :key="val" :value="val">{{val ? '启用' : '禁用'}}</option>
                                 </template>
@@ -45,6 +48,7 @@
                             <div class="form-link" v-else-if="item.type == 'link'"><a :href="item.url" target="_blank">{{item.text || item.url}}</a></div>
                         </div>
                         <div class="form-tips" v-if="item.tips">{{item.tips}}</div>
+                        <div class="form-tips cert-download" v-if="item.key == 'tls' && certUrl">下载地址：<a :href="certUrl" target="_blank">{{certUrl}}</a></div>
                     </div>
 
                     <div class="section-tips" v-if="menu.key == 'api' && form && form.api.enable && form.api.port">
@@ -89,9 +93,9 @@
                         ]},
                         {name: '自建服务', key: 'host', items: [
                             {label: '状态', key: 'enable', type: 'select', tips: '默认：关闭'},
-                            {label: '服务协议', key: 'protocol', type: 'input', tips: '默认：ws，支持wss'},
+                            {label: 'TLS/SSL', key: 'tls', type: 'select', tips: '提示：自签名证书需要导入浏览器中'},
                             {label: 'IP或域名', key: 'ip', type: 'input', tips: ''},
-                            {label: '服务端口', key: 'port', type:'input', tips: 'PushMe Server(v1.3.0+) websocket端口，默认：3010'},
+                            {label: '服务端口', key: 'port', type:'input', tips: 'PushMe Server v1.3.0+默认端口：3010，PushMe Server v2.0.0+默认端口：3100'},
                             {label: '离线消息', key: 'offline_msg', type: 'select', tips: '默认：不接收'},
                             {label: 'push_key', key: 'push_key', type: 'input', tips: 'PushMe APP 获取的push_key，并需在PushMe Server上配置'},
                         ]},
@@ -117,6 +121,7 @@
                     ],
                     enables: [true, false],
                     offlines: [false, true],
+                    tlsOptions: ['无证书', '公共证书', '自签名证书'],
                     methods: ['GET', 'POST/JSON', 'POST/FORM'],
                     durations: ['short', 'long'],
                     audioList: ['default', 'im', 'mail', 'reminder', 'sms', 'loopingalarm', 'loopingalarm2', 'loopingalarm3', 'loopingalarm4', 'loopingalarm5', 'loopingalarm6', 'loopingalarm7', 'loopingalarm8', 'loopingalarm9', 'loopingalarm10', 'loopingcall', 'loopingcall2', 'loopingcall3', 'loopingcall4', 'loopingcall5', 'loopingcall6', 'loopingcall7', 'loopingcall8', 'loopingcall9', 'loopingcall10', 'silent'],
@@ -124,6 +129,14 @@
                     ips: [],
                     version: '获取中..',
                     msgCount: '获取中..',
+                }
+            },
+            computed: {
+                certUrl() {
+                    if(this.form && this.form.host.tls == '自签名证书') {
+                        return `https://${this.form.host.ip + ':' + this.form.host.port}/certs/download`;
+                    }
+                    return '';
                 }
             },
             watch: {
