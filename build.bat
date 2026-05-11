@@ -4,4 +4,4 @@ windres -o main.syso main.rc
 go build -ldflags="-s -w -H windowsgui" .
 del main.rc
 del main.syso
-upx .\PushMeClient.exe
+upx --best --lzma .\PushMeClient.exe
