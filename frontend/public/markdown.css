@@ -1,0 +1,80 @@
+.markdown {
+    overflow: hidden;
+}
+.markdown>* {
+    margin: 1em 0;
+}
+.markdown>*:first-child {
+    margin-top: 0!important;
+}
+.markdown>*:last-child {
+    margin-bottom: 0!important;
+}
+.markdown>blockquote+blockquote,
+.markdown>blockquote+pre,
+.markdown>pre+pre,
+.markdown>pre+blockquote {
+    margin-top: 1.3em;
+}
+.markdown h1, .markdown h2 {
+    padding-bottom: .3em;
+    border-bottom: 1px solid #eee;
+}
+.markdown blockquote {
+    padding: .8em 1em;
+    border-left: 4px solid #ccc;
+    background-color: #f3f3f3;
+}
+.markdown hr {
+    border: 1px solid #eee;
+}
+.markdown code {
+    color: #f63;
+    word-break: break-word;
+    font-family: inherit;
+}
+.markdown a {
+    color: #46bc99;
+}
+.markdown pre {
+    padding: .8em 1em;
+    max-height: 35em;
+    line-height: 1.4;
+    background-color: #f3f3f3;
+    overflow: auto;
+    font-size: 12px;
+}
+.markdown pre code {
+    padding: 0 !important;
+    color: inherit;
+    overflow-wrap: normal;
+    word-break: normal;
+    background: inherit;
+    overflow-x: initial;
+    font-family: inherit;
+}
+.markdown table {
+    width: 100%;
+    border-collapse:collapse;
+}
+.markdown table th, .markdown table td {
+    border: 1px solid #eee;
+    padding: 0.5em;
+}
+.markdown table th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+}
+.markdown li {
+    margin: 0.6em 0 0.6em 20px;
+    list-style: inherit;
+}
+.markdown p {
+    line-height: 1.8;
+}
+.markdown img {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    cursor: pointer;
+}
