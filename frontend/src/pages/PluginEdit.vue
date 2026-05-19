@@ -15,7 +15,8 @@
 
 <script>
 import { GoGetPlugin, GoEditPlugin, GoDelPlugin } from "../../bindings/PushMe/internal/services/pluginservice";
-import { bc, query, WebToast, WebConfirm } from "../utils/common";
+import { query, WebToast, WebConfirm } from "../utils/common";
+import { Events } from '@wailsio/runtime';
 
 export default {
     data() {
@@ -64,7 +65,7 @@ next();
                         this.id = id;
                         this.get();
                     }
-                    bc.postMessage({'type': 'plugin_change', 'detail': {}});
+                    Events.Emit('plugin_change');
                     WebToast('保存成功！', 2000, _ => {
                         // window.GoClose();
                     });
@@ -84,7 +85,7 @@ next();
                 }
                 GoDelPlugin(this.id).then(res => {
                     if(res === true) {
-                        bc.postMessage({'type': 'plugin_change', 'detail': {}});
+                        Events.Emit('plugin_change');
                         this.id = 0;
                         this.plugin = {};
                         WebToast('删除成功！', 2000, _ => {

@@ -25,7 +25,8 @@
 <script>
 import { GoGetPluginList, GoSwapPlugin, GoEditPluginState } from "../../bindings/PushMe/internal/services/pluginservice";
 import { GoOpenPluginEdit } from "../../bindings/PushMe/internal/services/appservice";
-import { bc, WebToast } from "../utils/common";
+import { WebToast } from "../utils/common";
+import { Events } from '@wailsio/runtime'
 
 export default {
     data() {
@@ -38,17 +39,15 @@ export default {
     },
     mounted() {
         this.init();
+        Events.On('plugin_change', () => {
+            this.getList();
+        });
+    },
+    unmounted() {
+        Events.Off('plugin_change');
     },
     methods: {
         init() {
-            bc.onmessage = e => {
-                switch(e.data.type) {
-                    case 'plugin_change':
-                        this.getList();
-                        break;
-                }
-            };
-
             this.getList();
         },
         getList() {
@@ -69,7 +68,7 @@ export default {
             GoSwapPlugin(this.list[index], this.list[updown == 'up' ? index - 1 : index + 1]).then(res => {
                 this.getList();
             }).then(res => {
-                bc.postMessage({'type': 'plugin_change', 'detail': {}});
+                Events.Emit('plugin_change');
             });
         },
         toggleState(plugin) {
@@ -77,7 +76,7 @@ export default {
             GoEditPluginState(plugin).then(res => {
                 this.getList();
             }).then(res => {
-                bc.postMessage({'type': 'plugin_change', 'detail': {}});
+                Events.Emit('plugin_change');
             });
         }
     }

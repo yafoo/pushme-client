@@ -11,7 +11,7 @@
 
 <script>
 import { GoGetMessage, GoDelMessage } from "../../bindings/PushMe/internal/services/messageservice";
-import { bc, parseTitle, WebToast, WebConfirm, query } from "../utils/common";
+import { parseTitle, WebToast, WebConfirm, query } from "../utils/common";
 import { Events } from '@wailsio/runtime'
 import MeContent from "../components/MeContent.vue";
 
@@ -25,6 +25,15 @@ export default {
     },
     mounted() {
         this.init();
+        Events.On('new_message', (msg) => {
+            if(msg.id == this.id) {
+                console.log('new_message', msg);
+                this.message = {...msg};
+            }
+        });
+    },
+    unmounted() {
+        Events.Off('new_message');
     },
     methods: {
         init() {
@@ -34,13 +43,6 @@ export default {
             } else {
                 WebToast('消息ID不能为空');
             }
-
-            bc.onmessage = e => {
-                if(e.data.type == 'new_message' && e.data.detail.id == this.id) {
-                    console.log('new_message', e.data.detail);
-                    this.message = {...msg};
-                }
-            };
         },
         getMessage() {
             GoGetMessage(this.id).then(msg => {
@@ -57,7 +59,7 @@ export default {
                 }
                 GoDelMessage(this.id).then(res => {
                     if(res == true) {
-                        bc.postMessage({'type': 'message_del', 'detail': {...this.message}});
+                        Events.Emit('message_del', {...this.message});
                         WebToast('删除成功!', 500, _ => {
                             Events.Emit('close-message', this.id);
                             this.id = 0;

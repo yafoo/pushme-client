@@ -69,7 +69,8 @@
 import { GoGetSetting, GoSaveSetting, GoGetVersion, GoCheckVersion, GoGetSettingDefault, GoRestart, GoGetIps } from "../../bindings/PushMe/internal/services/settingservice";
 import { GoClearMessage, GoGetMcount } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenPlugin } from "../../bindings/PushMe/internal/services/appservice";
-import { bc, WebToast, WebCheckVersion } from "../utils/common";
+import { WebToast, WebConfirm, WebCheckVersion } from "../utils/common";
+import { Events } from '@wailsio/runtime';
 
 export default {
     data() {
@@ -219,7 +220,7 @@ export default {
                 }
                 GoClearMessage().then(res => {
                     if(res == true) {
-                        bc.postMessage({'type': 'message_del', 'detail': {type: 'text'}});
+                        Events.Emit('message_del', {type: 'text'});
                         this.getMcount();
                         WebToast('清空成功！!');
                     } else {

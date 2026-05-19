@@ -1,4 +1,3 @@
-export const bc = new BroadcastChannel('pushme');
 export const query = () => new URLSearchParams(window.location.search)
 
 export function WebToast(msg, time, callback) {

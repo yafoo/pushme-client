@@ -25,7 +25,7 @@ import { GoGetPluginListWithState } from "../../bindings/PushMe/internal/service
 import { GoGetHost, GoCheckVersion } from "../../bindings/PushMe/internal/services/settingservice";
 import { GoOpenMessage, GoOpenDashboard, GoOpenSetting, GoNotification } from "../../bindings/PushMe/internal/services/appservice";
 import { Events } from '@wailsio/runtime'
-import {bc, isTextMsg, isMarkMsg, isHtmlMsg, parseTitle, isDataMsg, WebCheckVersion, WebToast} from "../utils/common";
+import {isTextMsg, isMarkMsg, isHtmlMsg, parseTitle, isDataMsg, WebCheckVersion, WebToast} from "../utils/common";
 
 export default {
     data() {
@@ -62,21 +62,22 @@ export default {
                 WebToast('消息打开失败:' + err.message);
             });
         });
+        Events.On('plugin_change', () => {
+            this.initPlugin();
+        });
+        Events.On('message_del', (detail) => {
+            isTextMsg(detail) && this.getList(1);
+        });
     },
     unmounted() {
         Events.Off('msg');
         Events.Off('toast');
+        Events.Off('notification:action');
+        Events.Off('plugin_change');
+        Events.Off('message_del');
     },
     methods: {
         init() {
-            bc.onmessage = e => {
-                if(e.data.type == 'plugin_change') {
-                    this.initPlugin();
-                } else if(e.data.type == 'message_del') {
-                    isTextMsg(e.data.detail) && this.getList(1);
-                }
-            };
-
             this.initPlugin();
 
             this.initHost();
@@ -128,7 +129,7 @@ export default {
             GoAddMessage(msg).then(newMsg => {
                 if(newMsg.id > 0) {
                     if(isDataMsg(newMsg)) {
-                        bc.postMessage({'type': 'new_message', 'detail': newMsg});
+                        Events.Emit('new_message', newMsg);
                     } else if(isTextMsg(newMsg)) {
                         this.getList(1);
                         const titles = parseTitle(newMsg.title);

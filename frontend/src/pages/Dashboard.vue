@@ -15,7 +15,8 @@
 <script>
 import { GoGetDataList } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenMessage } from "../../bindings/PushMe/internal/services/appservice";
-import { bc, parseTitle, WebToast } from "../utils/common";
+import { parseTitle, WebToast, isDataMsg, isMarkMsg, isChartMsg, isEChartsMsg } from "../utils/common";
+import { Events } from '@wailsio/runtime'
 import MeContent from "../components/MeContent.vue";
 
 export default {
@@ -40,18 +41,24 @@ export default {
                 this.resize();
             });
         });
+        Events.On('new_message', (msg) => {
+            if(isDataMsg(msg)) {
+                console.log('new_message', msg);
+                this.updateMessage(msg);
+            }
+        });
+        Events.On('message_del', (detail) => {
+            if(isDataMsg(detail)) {
+                this.getList();
+            }
+        });
+    },
+    unmounted() {
+        Events.Off('new_message');
+        Events.Off('message_del');
     },
     methods: {
         init() {
-            bc.onmessage = e => {
-                if(e.data.type == 'new_message' && isDataMsg(e.data.detail)) {
-                    console.log('new_message', e.data.detail);
-                    this.updateMessage(e.data.detail);
-                } else if(e.data.type == 'message_del' && isDataMsg(e.data.detail)) {
-                    this.getList();
-                }
-            };
-
             this.getList();
         },
         getList() {
