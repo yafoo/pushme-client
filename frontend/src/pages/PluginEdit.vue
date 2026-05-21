@@ -38,7 +38,7 @@ next();
 }`
         }
     },
-    mounted() {
+    created() {
         this.init();
     },
     methods: {
@@ -65,7 +65,7 @@ next();
                         this.id = id;
                         this.get();
                     }
-                    Events.Emit('plugin_change');
+                    Events.Emit('plugin:change');
                     WebToast('保存成功！', 2000, _ => {
                         // window.GoClose();
                     });
@@ -85,7 +85,7 @@ next();
                 }
                 GoDelPlugin(this.id).then(res => {
                     if(res === true) {
-                        Events.Emit('plugin_change');
+                        Events.Emit('plugin:change');
                         this.id = 0;
                         this.plugin = {};
                         WebToast('删除成功！', 2000, _ => {

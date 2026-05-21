@@ -66,8 +66,9 @@
 </template>
 
 <script>
-import { GoGetSetting, GoSaveSetting, GoGetVersion, GoCheckVersion, GoGetSettingDefault, GoRestart, GoGetIps } from "../../bindings/PushMe/internal/services/settingservice";
-import { GoClearMessage, GoGetMcount } from "../../bindings/PushMe/internal/services/messageservice";
+import { GoGetIps, GoGetVersion, GoCheckVersion, GoRestart } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoGetSetting, GoSaveSetting, GoGetSettingDefault } from "../../bindings/PushMe/internal/services/settingservice";
+import { GoClearMessage, GoGetMessageCount } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenPlugin } from "../../bindings/PushMe/internal/services/appservice";
 import { WebToast, WebConfirm, WebCheckVersion } from "../utils/common";
 import { Events } from '@wailsio/runtime';
@@ -146,7 +147,7 @@ export default {
             }
         }
     },
-    mounted() {
+    created() {
         this.getIps();
         this.getSetting();
         this.getVersion();
@@ -173,7 +174,7 @@ export default {
             });
         },
         getMcount() {
-            GoGetMcount().then(res => {
+            GoGetMessageCount().then(res => {
                 this.msgCount = res;
             });
         },
@@ -220,7 +221,7 @@ export default {
                 }
                 GoClearMessage().then(res => {
                     if(res == true) {
-                        Events.Emit('message_del', {type: 'text'});
+                        Events.Emit('message:del', {type: 'text'});
                         this.getMcount();
                         WebToast('清空成功！!');
                     } else {

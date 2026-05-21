@@ -44,6 +44,7 @@ func main() {
 		Description: "A demo of using raw HTML & CSS",
 		Services: []application.Service{
 			application.NewService(services.Notifier),
+			application.NewService(&services.UtilsService{}),
 			application.NewService(&services.SettingService{}),
 			application.NewService(&services.AppService{}),
 			application.NewService(&services.MessageService{}),
@@ -75,9 +76,6 @@ func main() {
 		Width:            constant.WindowWidth,
 		Height:           constant.WindowHeight,
 		Hidden:           true,
-		Windows: application.WindowsWindow{
-			HiddenOnTaskbar: true,
-		},
 	})
 	// window.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
 	// 	windowShowing = false

@@ -2,7 +2,7 @@
 <div class="container">
     <div class="dashboard">
         <div class="dashboard-col" v-for="num in this.column" :key="num" :ref="'col' + num">
-            <div class="dashboard-item" v-for="message in this.colList[num-1]" :key="message.id" @click="openMessage(message)">
+            <div class="card dashboard-item" v-for="message in this.colList[num-1]" :key="message.id" @click="openMessage(message)">
                 <div class="dashboard-title">{{message.title}}</div>
                 <div class="dashboard-date">{{message.date}}</div>
                 <div class="dashboard-content"><me-content :message="message"></me-content></div>
@@ -41,21 +41,21 @@ export default {
                 this.resize();
             });
         });
-        Events.On('new_message', (msg) => {
+        Events.On('message:new', (msg) => {
             if(isDataMsg(msg)) {
-                console.log('new_message', msg);
+                console.log('message:new', msg);
                 this.updateMessage(msg);
             }
         });
-        Events.On('message_del', (detail) => {
+        Events.On('message:del', (detail) => {
             if(isDataMsg(detail)) {
                 this.getList();
             }
         });
     },
     unmounted() {
-        Events.Off('new_message');
-        Events.Off('message_del');
+        Events.Off('message:new');
+        Events.Off('message:del');
     },
     methods: {
         init() {
@@ -198,9 +198,6 @@ export default {
 .dashboard-item {
     margin: 8px 0;
     padding: 3px;
-    background-color: #fff;
-    border-radius: 3px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, .01);
     cursor: pointer;
 }
 .dashboard-title {

@@ -66,7 +66,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		body = []byte(apiStatus["empty"])
 	} else {
 		body = []byte(apiStatus["success"])
-		utils.EventEmit("msg", msg)
+		utils.EventEmit("message:api", msg)
 	}
 
 	w.Write(body)

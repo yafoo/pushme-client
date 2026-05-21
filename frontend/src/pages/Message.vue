@@ -23,17 +23,19 @@ export default {
             message: {},
         }
     },
-    mounted() {
+    created() {
         this.init();
-        Events.On('new_message', (msg) => {
+    },
+    mounted() {
+        Events.On('message:new', (msg) => {
             if(msg.id == this.id) {
-                console.log('new_message', msg);
+                console.log('message:new', msg);
                 this.message = {...msg};
             }
         });
     },
     unmounted() {
-        Events.Off('new_message');
+        Events.Off('message:new');
     },
     methods: {
         init() {
@@ -59,9 +61,9 @@ export default {
                 }
                 GoDelMessage(this.id).then(res => {
                     if(res == true) {
-                        Events.Emit('message_del', {...this.message});
+                        Events.Emit('message:del', {...this.message});
                         WebToast('删除成功!', 500, _ => {
-                            Events.Emit('close-message', this.id);
+                            Events.Emit('message:close', this.id);
                             this.id = 0;
                             this.message = {};
                         });
@@ -80,24 +82,24 @@ export default {
 
 <style scoped>
 .message-title {
-    font-size: 18px;
-    line-height: 1.8;
-    padding-top: 8px;
+    font-size: 16px;
+    line-height: 1.4;
+    padding-top: 10px;
 }
 .message-title .theme-i {
-    border-left: 4px solid #AAAAAA;
+    border-left: 4px solid var(--color-theme-i);
     margin-right: 5px;
 }
 .message-title .theme-s {
-    border-left: 4px solid #4CAF50;
+    border-left: 4px solid var(--color-theme-s);
     margin-right: 5px;
 }
 .message-title .theme-w {
-    border-left: 4px solid #FDD835;
+    border-left: 4px solid var(--color-theme-w);
     margin-right: 5px;
 }
 .message-title .theme-f {
-    border-left: 4px solid #E91E63;
+    border-left: 4px solid var(--color-theme-f);
     margin-right: 5px;
 }
 .message-date {

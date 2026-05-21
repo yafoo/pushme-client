@@ -1,6 +1,6 @@
 <template>
 <div class="container">
-    <div class="plugin-item" v-for="(item, index) in list" :key="item.id">
+    <div class="card plugin-item" v-for="(item, index) in list" :key="item.id">
         <div class="plugin-title" @click="addPlugin(item.id)">{{item.title}}</div>
         <div class="plugin-action">
             <div class="plugin-up" @click="SwapSort(index, 'up')">
@@ -37,14 +37,16 @@ export default {
             listLen: 0,
         }
     },
-    mounted() {
+    created() {
         this.init();
-        Events.On('plugin_change', () => {
+    },
+    mounted() {
+        Events.On('plugin:change', () => {
             this.getList();
         });
     },
     unmounted() {
-        Events.Off('plugin_change');
+        Events.Off('plugin:change');
     },
     methods: {
         init() {
@@ -68,7 +70,7 @@ export default {
             GoSwapPlugin(this.list[index], this.list[updown == 'up' ? index - 1 : index + 1]).then(res => {
                 this.getList();
             }).then(res => {
-                Events.Emit('plugin_change');
+                Events.Emit('plugin:change');
             });
         },
         toggleState(plugin) {
@@ -76,7 +78,7 @@ export default {
             GoEditPluginState(plugin).then(res => {
                 this.getList();
             }).then(res => {
-                Events.Emit('plugin_change');
+                Events.Emit('plugin:change');
             });
         }
     }
@@ -87,14 +89,12 @@ export default {
 .container {
     min-height: 100vh;
     background-color: #f5f5f5;
+    overflow: hidden;
 }
 
 .plugin-item {
     margin: 8px 0;
     padding: 1px;
-    background-color: #fff;
-    border-radius: 3px;
-    box-shadow: 0 3px 5px rgba(0,0,0,.01);
     line-height: 1.4;
     display: flex;
     justify-content: space-between;

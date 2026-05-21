@@ -2,35 +2,20 @@ package services
 
 import (
 	"PushMe/constant"
-	db "PushMe/internal/models"
 	"PushMe/internal/utils"
-	"fmt"
-	"log"
 	"strconv"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
-	"github.com/wailsapp/wails/v3/pkg/services/notifications"
 )
 
 type AppService struct{}
 
 var windowsMap map[int]*application.WebviewWindow = map[int]*application.WebviewWindow{}
 
-var Notifier = notifications.New()
-
 func init() {
-	Notifier.OnNotificationResponse(func(result notifications.NotificationResult) {
-		if result.Error != nil {
-			log.Println(fmt.Errorf("parsing notification result failed: %s", result.Error))
-		} else {
-			log.Println("Response: %+v\n", result.Response)
-			utils.EventEmit("notification:action", result.Response)
-		}
-	})
-
 	time.AfterFunc(time.Second, func() {
-		utils.EventOn("close-message", func(event *application.CustomEvent) {
+		utils.EventOn("message:close", func(event *application.CustomEvent) {
 			var id int
 			switch v := event.Data.(type) {
 			case int:
@@ -94,36 +79,4 @@ func (a *AppService) GoOpenPluginEdit(id int) {
 
 func (a *AppService) GoOpenSetting(id int) {
 	a.OpenPage("/index.html?page=Setting", "系统设置")
-}
-
-func (a *AppService) GoNotification(msg db.Msg) {
-	authorized, err := Notifier.CheckNotificationAuthorization()
-	if err != nil {
-		utils.Toast("检查通知权限失败: " + err.Error())
-		return
-	}
-	if authorized {
-		err := Notifier.SendNotification(notifications.NotificationOptions{
-			ID:    strconv.Itoa(int(msg.ID)),
-			Title: msg.Title,
-			Body:  msg.Content,
-			Data: map[string]interface{}{
-				"id": msg.ID,
-			},
-		})
-		if err != nil {
-			utils.Toast("发送通知失败: " + err.Error())
-			return
-		}
-		log.Println("发送通知成功: ", msg)
-	} else {
-		authorized, err = Notifier.RequestNotificationAuthorization()
-		if err != nil {
-			utils.Toast("请求通知权限失败: " + err.Error())
-			return
-		}
-		if !authorized {
-			utils.Toast("用户拒绝了通知权限")
-		}
-	}
 }

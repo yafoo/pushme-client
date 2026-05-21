@@ -1,30 +1,38 @@
-export const plugin = `function compose(plugins) {
-    return function (msg, next) {
-      let index = -1
-      return dispatch(0)
-      function dispatch (i) {
-        if (i <= index) return 'next() called multiple times'
-        index = i
-        let fn = plugins[i]
-        if (i === plugins.length) fn = next
-        if (!fn) return true
-        if(typeof(fn) !== 'function') return 'plugin ' + (i+1) + ' must be composed of functions!'
-        try {
-          return fn(msg, dispatch.bind(null, i + 1))
-        } catch (err) {
-          return err
-        }
-      }
+import { GoGetPluginListWithState } from "../../bindings/PushMe/internal/services/pluginservice";
+import {WebToast} from "../utils/common";
+
+let plugin = null;
+export const initPlugin = async(onMessage) => {
+    const pluginFun = (msg) => {
+        plugin && plugin.postMessage ? plugin.postMessage(msg) : onMessage(msg);
     }
-}
 
-const plugins = [];
-// plugin_list
-
-self.onmessage = function(e) {
-    const msg = e.data;
     try {
-        compose(plugins)(e.data);
-    } catch(err) {}
-    self.postMessage(msg);
-}`
+        const list = await GoGetPluginListWithState(1);
+        console.log('PluginEnabledCount', list.length);
+        plugin && plugin.terminate && plugin.terminate();
+        plugin = null
+        if(!list.length) {
+            return pluginFun;
+        }
+
+        let {default: pluginJs} = await import('../utils/plugin-tpl.js');
+        let pluginStr = '';
+        list.forEach(p => {
+            pluginStr += `plugins.push(\n    ${p.content.replaceAll("\n", "\n    ")}\n);\n`;
+        });
+        pluginJs = pluginJs.replace('// plugin_list', pluginStr);
+
+        const blob = new Blob([pluginJs], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        plugin = new Worker(url);
+        plugin.onmessage = e => {
+            onMessage(e.data)
+        };
+
+        URL.revokeObjectURL(url);
+    } catch (err) {console.log(err);
+        WebToast('插件初始化失败:' + err.message);
+    }
+    return pluginFun;
+}
