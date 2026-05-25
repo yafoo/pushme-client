@@ -1,6 +1,6 @@
 <template>
 <div class="container">
-    <h1 class="message-title"><span :class="'theme-' + parseTitle(message.title).theme"></span>{{parseTitle(message.title).title}}</h1>
+    <h1 class="message-title" :class="theme">{{title}}</h1>
     <div class="message-date">{{message.date}}</div>
     <div class="message-content"><me-content :message="message"></me-content></div>
 </div>
@@ -21,6 +21,18 @@ export default {
         return {
             id: 0,
             message: {},
+            title: '',
+            theme: '',
+        }
+    },
+    watch: {
+        message: {
+            deep: true,
+            handler() {
+                const res = parseTitle(this.message.title);
+                this.title = (res.title + '' || '').replace(/^\[#/, '[');
+                this.theme = res.theme ? 'theme ' + res.theme : '';
+            },
         }
     },
     created() {
@@ -49,6 +61,8 @@ export default {
         getMessage() {
             GoGetMessage(this.id).then(msg => {
                 this.message = msg;
+            }).catch(err => {
+                WebToast('消息获取失败:' + err.message);
             });
         },
         delMessage() {
@@ -73,9 +87,6 @@ export default {
                 });
             });
         },
-        parseTitle(title) {
-            return parseTitle(title);
-        },
     }
 }
 </script>
@@ -86,21 +97,28 @@ export default {
     line-height: 1.4;
     padding-top: 10px;
 }
-.message-title .theme-i {
-    border-left: 4px solid var(--color-theme-i);
+.theme::before {
+    content: '';
+    border-left: 4px solid #fff;
     margin-right: 5px;
 }
-.message-title .theme-s {
-    border-left: 4px solid var(--color-theme-s);
+.theme.i::before {
+    content: '';
+    display: inline-block;
+    border-left: 4px solid #fff;
     margin-right: 5px;
 }
-.message-title .theme-w {
-    border-left: 4px solid var(--color-theme-w);
-    margin-right: 5px;
+.theme.i::before {
+    border-left-color: var(--color-theme-i);
 }
-.message-title .theme-f {
-    border-left: 4px solid var(--color-theme-f);
-    margin-right: 5px;
+.theme.s::before {
+    border-left-color: var(--color-theme-s);
+}
+.theme.w::before {
+    border-left-color: var(--color-theme-w);
+}
+.theme.f::before {
+    border-left-color: var(--color-theme-f);
 }
 .message-date {
     font-size: 12px;
