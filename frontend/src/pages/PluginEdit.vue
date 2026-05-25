@@ -53,6 +53,8 @@ next();
         get() {
             GoGetPlugin(this.id).then(plugin => {
                 this.plugin = plugin;
+            }).catch(err => {
+                WebToast('消息插件失败:' + err.message);
             });
         },
         edit() {
@@ -61,17 +63,15 @@ next();
             }
             GoEditPlugin(this.plugin).then(id => {
                 if(id > 0) {
-                    if(this.id == 0) {
-                        this.id = id;
-                        this.get();
-                    }
                     Events.Emit('plugin:change');
-                    WebToast('保存成功！', 2000, _ => {
-                        // window.GoClose();
+                    WebToast('保存成功！', 500, _ => {
+                        Events.Emit('plugin:close', this.id);
                     });
                 } else {
                     WebToast('保存失败！');
                 }
+            }).catch(err => {
+                WebToast('保存失败:' + err.message);
             });
         },
         del() {
@@ -86,14 +86,16 @@ next();
                 GoDelPlugin(this.id).then(res => {
                     if(res === true) {
                         Events.Emit('plugin:change');
-                        this.id = 0;
-                        this.plugin = {};
-                        WebToast('删除成功！', 2000, _ => {
-                            // window.GoClose();
+                        WebToast('删除成功！', 500, _ => {
+                            Events.Emit('plugin:close', this.id);
+                            this.id = 0;
+                            this.plugin = {};
                         });
                     } else {
                         WebToast('删除失败！');
                     }
+                }).catch(err => {
+                    WebToast('删除失败:' + err.message);
                 });
             });
         },
@@ -106,6 +108,7 @@ next();
     display: flex;
     height: 100%;
     flex-direction: column;
+    padding-top: 8px;
 }
 .plugin-form-item {
     margin-bottom: 8px;

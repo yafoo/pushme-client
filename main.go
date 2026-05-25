@@ -77,11 +77,6 @@ func main() {
 		Height:           constant.WindowHeight,
 		Hidden:           true,
 	})
-	// window.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
-	// 	windowShowing = false
-	// 	window.Hide()
-	// 	e.Cancel()
-	// })
 	window.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		windowShowing = false
 		window.Hide()

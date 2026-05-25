@@ -84,6 +84,8 @@ export default {
                     } else {
                         WebToast('删除失败!');
                     }
+                }).catch(err => {
+                    WebToast('删除失败:' + err.message);
                 });
             });
         },

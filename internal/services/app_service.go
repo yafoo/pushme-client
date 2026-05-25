@@ -3,43 +3,57 @@ package services
 import (
 	"PushMe/constant"
 	"PushMe/internal/utils"
+	"fmt"
+	"log"
 	"strconv"
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 type AppService struct{}
 
-var windowsMap map[int]*application.WebviewWindow = map[int]*application.WebviewWindow{}
+var pageType = struct {
+	Message string
+	Plugin  string
+}{
+	Message: "message",
+	Plugin:  "plugin",
+}
+var pageStore map[string]*application.WebviewWindow = map[string]*application.WebviewWindow{}
+
+func closePage(pageType string, event *application.CustomEvent) {
+	var key string
+	switch v := event.Data.(type) {
+	case int:
+		key = strconv.Itoa(v)
+	case int64:
+		key = strconv.FormatInt(v, 10)
+	case float64: // JSON 数字默认是 float64
+		key = fmt.Sprint(v)
+	case string:
+		key = v
+	default:
+		return
+	}
+	win, ok := pageStore[pageType+key]
+	if ok {
+		win.Close()
+	}
+}
 
 func init() {
 	time.AfterFunc(time.Second, func() {
 		utils.EventOn("message:close", func(event *application.CustomEvent) {
-			var id int
-			switch v := event.Data.(type) {
-			case int:
-				id = v
-			case int64:
-				id = int(v)
-			case float64: // JSON 数字默认是 float64
-				id = int(v)
-			case string:
-				if parsed, err := strconv.ParseInt(v, 10, 64); err == nil {
-					id = int(parsed)
-				} else {
-					return
-				}
-			default:
-				return
-			}
-			win, ok := windowsMap[id]
-			if ok {
-				win.Close()
-			}
+			closePage(pageType.Message, event)
 		})
 	})
-
+	time.AfterFunc(time.Second, func() {
+		utils.EventOn("plugin:close", func(event *application.CustomEvent) {
+			closePage(pageType.Plugin, event)
+		})
+	})
 }
 
 func (a *AppService) OpenPage(url string, title string) *application.WebviewWindow {
@@ -62,7 +76,12 @@ func (a *AppService) OpenPage(url string, title string) *application.WebviewWind
 }
 
 func (a *AppService) GoOpenMessage(id int) {
-	windowsMap[id] = a.OpenPage("/index.html?page=Message&id="+strconv.Itoa(id), "消息内容")
+	var page *application.WebviewWindow = a.OpenPage("/index.html?page=Message&id="+strconv.Itoa(id), "消息内容")
+	var pageKey = pageType.Message + strconv.Itoa(id)
+	page.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		delete(pageStore, pageKey)
+	})
+	pageStore[pageKey] = page
 }
 
 func (a *AppService) GoOpenDashboard(id int) {
@@ -74,7 +93,13 @@ func (a *AppService) GoOpenPlugin() {
 }
 
 func (a *AppService) GoOpenPluginEdit(id int) {
-	a.OpenPage("/index.html?page=PluginEdit&id="+strconv.Itoa(id), "插件编辑")
+	var page *application.WebviewWindow = a.OpenPage("/index.html?page=PluginEdit&id="+strconv.Itoa(id), "插件编辑")
+	var pageKey = pageType.Plugin + strconv.Itoa(id)
+	page.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		log.Println("events Close Message")
+		delete(pageStore, pageKey)
+	})
+	pageStore[pageKey] = page
 }
 
 func (a *AppService) GoOpenSetting(id int) {
