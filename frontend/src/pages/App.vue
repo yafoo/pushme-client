@@ -1,13 +1,11 @@
 <template>
 <div class="container">
-    <div class="list-empty" style="text-align: center; font-size: 12px;" v-if="!list.length">暂无消息</div>
-    <template v-for="message in list" :key="message.id">
-        <me-item class="list-item" @click="openMessage(message)" v-if="isTextMsg(message)" :message="message"></me-item>
-    </template>
+    <div class="list-empty" v-if="!list.length">暂无消息</div>
+    <me-item class="list-item" v-for="message in list" :key="message.id" @click="openMessage(message)" :message="message"></me-item>
     <div class="button" v-if="hasMore" style="margin: 15px 0;" @click="getList(page+1)">加载更多</div>
 </div>
 <div class="float-tools">
-    <div class="button-cirle button-refresh" @click="getList(1)"><img class="icon" src="/icon/refresh.svg"></div>
+    <div class="button-cirle button-refresh" @click="getList()"><img class="icon" src="/icon/refresh.svg"></div>
     <div class="button-cirle button-setting" @click="openSetting"><img class="icon" src="/icon/setting.svg"></div>
     <div class="button-cirle button-dashboard" @click="openDashboard"><img class="icon" src="/icon/dashboard.svg"></div>
 </div>
@@ -18,7 +16,7 @@ import { GoGetMessageList, GoAddMessage } from "../../bindings/PushMe/internal/s
 import { GoCheckVersion } from "../../bindings/PushMe/internal/services/utilsservice";
 import { GoOpenMessage, GoOpenDashboard, GoOpenSetting } from "../../bindings/PushMe/internal/services/appservice";
 import { Events } from '@wailsio/runtime'
-import {isTextMsg, isDataMsg, WebCheckVersion, WebToast, Notification } from "../utils/common";
+import {isTextMsg, isDataMsg, WebCheckVersion, WebToast, WebNotification } from "../utils/common";
 import { initPlugin } from "../utils/plugin";
 import { initHost } from "../utils/host";
 import { markRaw } from 'vue';
@@ -28,7 +26,6 @@ export default {
     components: { MeItem },
     data() {
         return {
-            id: 0,
             list: [],
             page: 1,
             pageSize: 10,
@@ -37,16 +34,17 @@ export default {
         }
     },
     created() {
-        this.getList(1);
+        this.getList();
     },
     mounted() {
         this.init();
+
         Events.On('message:api', ({data}) => {
             console.log('message:api', data[0]);
-            this.newMessage(data[0]);
+            this.calcMessage(data[0]);
         });
         Events.On('message:del', (detail) => {
-            isTextMsg(detail) && this.getList(1);
+            isTextMsg(detail) && this.getList();
         });
         Events.On('plugin:change', () => {
             this.initPlugin();
@@ -81,11 +79,7 @@ export default {
         getList(page = 1) {
             this.page = page;
             GoGetMessageList(this.page, this.pageSize).then(list => {
-                if(list.length < this.pageSize) {
-                    this.hasMore = false;
-                } else {
-                    this.hasMore = true;
-                }
+                this.hasMore = list.length >= this.pageSize;
 
                 if(this.page == 1) {
                     this.list = list;
@@ -102,22 +96,17 @@ export default {
                     });
                 }
             }).catch(err => {
-                console.log(err);
+                WebToast(err.message);
             });
         },
-        newMessage(msg) {
-            this.plugin && this.plugin(msg);
-        },
         addMessage(msg) {
-            msg.title = msg.title.replace(/\[~.+\]$/g, ''); //过滤通道信息
-
             GoAddMessage(msg).then(newMsg => {
                 if(newMsg.id > 0) {
                     if(isDataMsg(newMsg)) {
                         Events.Emit('message:new', newMsg);
-                    } else if(isTextMsg(newMsg)) {
-                        Notification(newMsg);
-                        this.getList(1);
+                    } else {
+                        WebNotification(newMsg);
+                        this.getList();
                     }
                 } else {
                     WebToast('消息添加失败');
@@ -137,8 +126,9 @@ export default {
         openSetting() {
             GoOpenSetting();
         },
-        isTextMsg(msg) {
-            return isTextMsg(msg);
+        calcMessage(msg) {
+            msg.title = msg.title.replace(/\[~.+\]$/g, ''); //过滤通道信息
+            this.plugin && this.plugin(msg);
         },
         async initPlugin() {
             this.plugin = markRaw(await initPlugin((msg => {
@@ -147,14 +137,14 @@ export default {
         },
         async initHost() {
             initHost(msg => {
-                this.newMessage(msg);
-            })
+                this.calcMessage(msg);
+            });
         },
         checkVersion() {
-            Events.Once("version", ({data}) => {
+            Events.Once("event:version", ({data}) => {
                 console.log('Events version', data[0]);
                 data[0] && WebCheckVersion(JSON.parse(data[0]))
-            })
+            });
             GoCheckVersion();
         },
     }
@@ -177,6 +167,8 @@ export default {
     line-height: 1.4;
     cursor: pointer;
     user-select: text;
+    text-align: center;
+    font-size: 12px;
 }
 .list-item {
     margin: 8px 0;

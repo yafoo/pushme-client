@@ -157,7 +157,7 @@ export function WebCheckVersion(res, tips=false) {
     }
 }
 
-export function Notification(message) {
+export function WebNotification(message) {
     const msg = {...message};
     const titles = parseTitle(msg.title);
     msg.title = ({'': '', i: '[info]', s: '[success]', f: '[failure]', w: '[warning]'})[titles.theme] + ' ' + titles.title;

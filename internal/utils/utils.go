@@ -114,7 +114,7 @@ func CheckVersion() {
 		},
 	}
 	result := req.Post()
-	EventEmit("version", result)
+	EventEmit("event:version", result)
 }
 
 func Toast(message string) {
