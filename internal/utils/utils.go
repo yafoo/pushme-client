@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -153,8 +154,17 @@ func GetIps() (ips []string) {
 	return ips
 }
 
+func IsWindows() bool {
+	return runtime.GOOS == "windows"
+}
+
+// wails3暂未实现，本程序仅支持windows
 func Autostart(status bool) {
-	// wails3暂未实现
+	if status {
+		MakeShortcut()
+	} else {
+		RemoveShortcut()
+	}
 }
 
 func Restart() {

@@ -109,7 +109,7 @@ export default {
                     {label: 'HTML消息JS支持', key: 'html_js', type: 'select', tips: '默认：禁用'},
                 ]},
                 {name: '系统设置', key: 'system', items: [
-                    {label: '开机启动', key: 'enable', type: 'select', tips: '默认：关闭'},
+                    {label: '开机启动', key: 'enable', type: 'select', tips: '提示：目前仅支持windows系统，默认：关闭'},
                 ]},
                 {name: '关于我们', key: 'about', items: []},
             ],
