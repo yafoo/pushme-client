@@ -88,6 +88,7 @@ export default {
         const ctx = canvas.getContext("2d");
         ctx.save();
         ctx.strokeStyle = '#eee';
+        ctx.lineWidth = 1;
         y_axis.forEach((v, i) => {
             ctx.beginPath();
             const y = parseInt(i * height / total) + (i == 0 ? 0.5 : -0.5);

@@ -1,8 +1,8 @@
 <template>
 <div class="container">
     <div class="dashboard">
-        <div class="dashboard-col" v-for="num in this.column" :key="num" :ref="'col' + num">
-            <div class="card dashboard-item" v-for="message in this.colList[num-1]" :key="message.id" @click="openMessage(message)">
+        <div class="dashboard-col" v-for="i in columns" :key="i" :ref="'col' + i">
+            <div class="card dashboard-item" v-for="message in this.columnList[i-1]" :key="message.id" @click="openMessage(message)">
                 <div class="dashboard-title">{{message.title}}</div>
                 <div class="dashboard-date">{{message.date}}</div>
                 <div class="dashboard-content"><me-content :message="message"></me-content></div>
@@ -15,7 +15,7 @@
 <script>
 import { GoGetDataList } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenMessage } from "../../bindings/PushMe/internal/services/appservice";
-import { parseTitle, WebToast, isDataMsg, isMarkMsg, isChartMsg, isEChartsMsg } from "../utils/common";
+import { WebToast, isDataMsg } from "../utils/common";
 import { Events } from '@wailsio/runtime'
 import MeContent from "../components/MeContent.vue";
 
@@ -24,23 +24,14 @@ export default {
     data() {
         return {
             list: [],
-            column: 2,
-            colList: [],
+            columns: 2,
+            columnList: [],
             isMonting: false,
         }
     },
-    created() {
-        this.init();
-    },
     mounted() {
-        setTimeout(() => {
-            this.resize();
-        }, 100);
-        window.addEventListener('resize', _ => {
-            this.$nextTick(() => {
-                this.resize();
-            });
-        });
+        this.getList();
+
         Events.On('message:new', (msg) => {
             if(isDataMsg(msg)) {
                 console.log('message:new', msg);
@@ -52,19 +43,25 @@ export default {
                 this.getList();
             }
         });
+
+        window.addEventListener('resize', _ => {
+            this.$nextTick(() => {
+                this.resize();
+            });
+        });
+        setTimeout(() => {
+            this.resize();
+        }, 100);
     },
     unmounted() {
         Events.Off('message:new');
         Events.Off('message:del');
     },
     methods: {
-        init() {
-            this.getList();
-        },
         getList() {
             GoGetDataList().then(list => {
                 this.list = list;
-                this.initColumn();
+                this.resetColumnList();
                 this.$nextTick(() => {
                     this.mountBoard();
                 });
@@ -93,15 +90,6 @@ export default {
                 this.getList();
             }
         },
-        isMarkMsg(msg) {
-            return isMarkMsg(msg);
-        },
-        isChartMsg(msg) {
-            return isChartMsg(msg);
-        },
-        isEChartsMsg(msg) {
-            return isEChartsMsg(msg);
-        },
         renderMark(content) {
             if(!this.md) {
                 this.md = markdownit({html: true, linkify: false});
@@ -109,19 +97,19 @@ export default {
             return this.md.render(content);
         },
         resize() {
-            const column = Math.round(window.innerWidth / 150);
-            if(column != this.column) {
-                this.column = column;
-                this.initColumn();
+            const newColumns = Math.round(window.innerWidth / 150);
+            if(newColumns != this.columns) {
+                this.columns = newColumns;
+                this.resetColumnList();
                 this.$nextTick(() => {
                     this.mountBoard();
                 });
             }
         },
-        initColumn() {
-            this.colList = [];
-            for(let i=0; i<this.column; i++) {
-                this.colList[i] = [];
+        resetColumnList() {
+            this.columnList = [];
+            for(let i=0; i<this.columns; i++) {
+                this.columnList[i] = [];
             }
         },
         mountBoard(index=0) {
@@ -132,8 +120,8 @@ export default {
                 this.isMonting = true;
             }
             if(this.list.length > index) {
-                const col_i = this.getColumn();
-                this.colList[col_i].push(this.list[index]);
+                const col_i = this.getNextColumnIndex();
+                this.columnList[col_i].push(this.list[index]);
                 this.$nextTick(() => {
                     this.mountBoard(index + 1);
                 });
@@ -141,15 +129,15 @@ export default {
                 this.isMonting = false;
             }
         },
-        getColumn() {
+        getNextColumnIndex() {
             const heights = [];
-            for(let i=1; i<=this.column; i++) {
+            for(let i=1; i<=this.columns; i++) {
                 heights.push(this.$refs['col'+i][0].offsetHeight);
             }
             const min_height = Math.min(...heights);
 
             let col_i = 0;
-            for(let i=0; i<this.column; i++) {
+            for(let i=0; i<this.columns; i++) {
                 if(heights[i] == min_height) {
                     col_i = i;
                     break;
@@ -180,7 +168,10 @@ export default {
     line-height: 1.2;
 }
 .dashboard .markdown>*:first-child {
-    margin-top: 8px !important;
+    margin-top: 5px !important;
+}
+.dashboard-content canvas {
+    margin-top: 5px !important;
 }
 </style>
 
@@ -188,6 +179,7 @@ export default {
 .container {
     min-height: 100vh;
     background-color: #f5f5f5;
+    padding-top: 8px;
 }
 .dashboard {
     display: flex;
@@ -196,10 +188,9 @@ export default {
 }
 .dashboard-col {
     flex: 1;
-    overflow: hidden;
 }
 .dashboard-item {
-    margin: 8px 0;
+    margin-bottom: 8px;
     padding: 3px;
     cursor: pointer;
 }
