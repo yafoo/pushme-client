@@ -163,6 +163,9 @@ export default {
 </script>
 
 <style>
+::-webkit-scrollbar {
+    background-color: #f5f5f5;
+}
 .dashboard .data {
     font-size: 18px;
     color: var(--color-primary);

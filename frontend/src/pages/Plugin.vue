@@ -85,6 +85,12 @@ export default {
 }
 </script>
 
+<style>
+::-webkit-scrollbar {
+    background-color: #f5f5f5;
+}
+</style>
+
 <style scoped>
 .container {
     min-height: 100vh;

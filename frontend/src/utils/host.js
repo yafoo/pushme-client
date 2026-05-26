@@ -1,4 +1,5 @@
 import { GoGetHost } from "../../bindings/PushMe/internal/services/settingservice";
+import { WebToast } from "../utils/common";
 
 let client = null;
 
@@ -58,11 +59,13 @@ export const initHost = async(onMessage) => {
         console.log('Host Connected');
         client.subscribe(sub_topic, {qos: host.offline_msg ? 1 : 0});
     });
+    client.on('disconnect', res => {
+        console.log('Host Disconnected', res);
+    });
 
     client.on('message', (topic, payload) => {
         if(topic == sub_topic) {
             let data = payload.toString();
-            console.log('Host NewMessage', data);
             try {
                 data = JSON.parse(data);
                 onMessage(data);

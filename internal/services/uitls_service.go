@@ -70,8 +70,8 @@ func (u *UtilsService) GoGetVersion() string {
 	return constant.AppVersion
 }
 
-func (u *UtilsService) GoCheckVersion() {
-	go utils.CheckVersion()
+func (u *UtilsService) GoCheckVersion() string {
+	return utils.CheckVersion()
 }
 
 func (u *UtilsService) GoRestart() {

@@ -13,9 +13,8 @@
 
 <script>
 import { GoGetMessageList, GoAddMessage } from "../../bindings/PushMe/internal/services/messageservice";
-import { GoCheckVersion } from "../../bindings/PushMe/internal/services/utilsservice";
 import { GoOpenMessage, GoOpenDashboard, GoOpenSetting } from "../../bindings/PushMe/internal/services/appservice";
-import { Events } from '@wailsio/runtime'
+import { Events } from '@wailsio/runtime';
 import {isTextMsg, isDataMsg, WebCheckVersion, WebToast, WebNotification } from "../utils/common";
 import { initPlugin } from "../utils/plugin";
 import { initHost } from "../utils/host";
@@ -74,7 +73,7 @@ export default {
             this.initPlugin();
             this.initHost();
 
-            this.checkVersion();
+            WebCheckVersion();
         },
         getList(page = 1) {
             this.page = page;
@@ -137,19 +136,19 @@ export default {
         },
         async initHost() {
             initHost(msg => {
+                console.log('host:message', msg);
                 this.calcMessage(msg);
             });
-        },
-        checkVersion() {
-            Events.Once("event:version", ({data}) => {
-                console.log('Events version', data[0]);
-                data[0] && WebCheckVersion(JSON.parse(data[0]))
-            });
-            GoCheckVersion();
         },
     }
 }
 </script>
+
+<style>
+::-webkit-scrollbar {
+    background-color: #f5f5f5;
+}
+</style>
 
 <style scoped>
 .container {

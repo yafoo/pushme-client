@@ -1,4 +1,4 @@
-import { GoNotification } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoNotification, GoCheckVersion } from "../../bindings/PushMe/internal/services/utilsservice";
 
 export const query = () => new URLSearchParams(window.location.search)
 
@@ -146,27 +146,39 @@ export function removeStyleScript(html) {
     return html.replace(/<(style|script)[^>]*>[\s\S]*?<\/\1>|<\s*(style|script)[^>]*\/>/gi, '');
 }
 
-export function WebCheckVersion(res, tips=false) {
-    console.log('WebCheckVersion:', res);
-    if(res && res.update) {
-        WebConfirm(res.update + '\n点击确定，打开下载链接', '发现新版本' + res.version, action => {
-            action == "ok" && window.open('https://github.com/yafoo/pushme-client/releases');
-        });
-    } else {
-        tips && WebToast('当前已是最新版本！');
-    }
+export function WebCheckVersion(tips = false) {
+    GoCheckVersion().then(res => {
+        console.log('WebCheckVersion:', res);
+        if(!res) {
+            return tips && WebToast('当前已是最新版本！');
+        }
+        if(res.startsWith('{')) {
+            res = JSON.parse(res);
+            if(res && res.update) {
+                WebConfirm(res.update + '\n点击确定，打开下载链接', '发现新版本' + res.version, action => {
+                    action == "ok" && window.open('https://github.com/yafoo/pushme-client/releases');
+                });
+            } else {
+                tips && WebToast('当前已是最新版本！');
+            }
+        } else {
+            tips && WebToast('请求出错：' + res);
+        }
+    }).catch(res => {
+        WebToast('请求出错：' + res);
+    });
 }
 
 export function WebNotification(message) {
     const msg = {...message};
     const titles = parseTitle(msg.title);
-    msg.title = ({'': '', i: '[info]', s: '[success]', f: '[failure]', w: '[warning]'})[titles.theme] + ' ' + titles.title;
+    msg.title = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[titles.theme] + ' ' + titles.title;
     if(msg.type == 'html') {
         msg.content = removeStyleScript(msg.content);
     }
     msg.content = msg.content.replace(/\s+/g, ' ').replace(/[#*]+\s/g, '').replace(/<[^>]+>|&[^>]+;/g, '');
     GoNotification(msg).then(() => {
-        console.log('Notification Success');
+        console.log('Notification Success', msg);
     }).catch(err => {
         WebToast('消息发送失败:' + err.message);
     });

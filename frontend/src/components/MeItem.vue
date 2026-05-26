@@ -1,7 +1,7 @@
 <template>
 <div class="card item" :class="theme">
     <div class="item-head"><div class="item-title">{{title}}</div><div class="item-date">{{date}}</div></div>
-    <div class="item-content">{{content}}</div>
+    <div class="item-content" v-if="content !== ''">{{content}}</div>
 </div>
 </template>
 
@@ -110,7 +110,7 @@ export default {
     color: #555;
 }
 .item-content {
-    margin: 5px 0;
+    margin-top: 5px;
     display: -webkit-box;
     line-clamp: 2;
     -webkit-line-clamp: 2;
@@ -119,7 +119,6 @@ export default {
     text-overflow: ellipsis;
     word-break: break-all;
     font-size: 12px;
-    line-height: 1.2;
     color: #666;
 }
 </style>

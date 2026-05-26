@@ -5,54 +5,53 @@
     </div>
     <div class="setting-form" :scrollIntoView="current">
         <div class="form-section" v-for="menu in formItem" :key="menu.key" :id="menu.key">
-            <div class="form-item" v-for="item in menu.items" :key="item.key">
-                <div class="form-label">{{item.label}} <span class="form-label-tips" v-if="getLabelTips(menu, item)">{{getLabelTips(menu, item)}}</span></div>
-                <div class="form-content">
-                    <input class="input" v-if="item.type == 'input'" v-model="form[menu.key][item.key]" />
-                    <select class="select" v-else-if="item.type == 'select'" v-model="form[menu.key][item.key]">
-                        <template v-if="item.key == 'enable'">
-                            <option v-for="val in enables" :key="val" :value="val">{{val ? '开启' : '关闭'}}</option>
-                        </template>
-                        <template v-else-if="item.key == 'offline_msg'">
-                            <option v-for="val in offlines" :key="val" :value="val">{{val ? '接收' : '不接收'}}</option>
-                        </template>
-                        <template v-else-if="item.key == 'tls'">
-                            <option v-for="val in tlsOptions" :key="val" :value="val">{{val}}</option>
-                        </template>
-                        <template v-else-if="item.key == 'html_js'">
-                            <option v-for="val in enables" :key="val" :value="val">{{val ? '启用' : '禁用'}}</option>
-                        </template>
-                        <template v-else-if="item.key == 'method'">
-                            <option v-for="val in methods" :key="val" :value="val">{{val}}</option>
-                        </template>
-                        <template v-else-if="item.key == 'duration'">
-                            <option v-for="val in durations" :key="val" :value="val">{{val}}</option>
-                        </template>
-                        <template v-else-if="item.key == 'audio'">
-                            <option v-for="val in audioList" :key="val" :value="val">{{val}}</option>
-                        </template>
-                    </select>
-                    <div class="form-text" v-else-if="item.type == 'text'">
-                        {{item.text}}
+            <div class="form-list">
+                <div class="form-item" v-for="item in menu.items" :key="item.key">
+                    <div class="form-label">{{item.label}} <span class="form-label-tips" v-if="getLabelTips(menu, item)">{{getLabelTips(menu, item)}}</span></div>
+                    <div class="form-content">
+                        <input class="input" v-if="item.type == 'input'" v-model="form[menu.key][item.key]" />
+                        <select class="select" v-else-if="item.type == 'select'" v-model="form[menu.key][item.key]">
+                            <template v-if="item.key == 'enable'">
+                                <option v-for="val in enables" :key="val" :value="val">{{val ? '开启' : '关闭'}}</option>
+                            </template>
+                            <template v-else-if="item.key == 'offline_msg'">
+                                <option v-for="val in offlines" :key="val" :value="val">{{val ? '接收' : '不接收'}}</option>
+                            </template>
+                            <template v-else-if="item.key == 'tls'">
+                                <option v-for="val in tlsOptions" :key="val" :value="val">{{val}}</option>
+                            </template>
+                            <template v-else-if="item.key == 'html_js'">
+                                <option v-for="val in enables" :key="val" :value="val">{{val ? '启用' : '禁用'}}</option>
+                            </template>
+                            <template v-else-if="item.key == 'method'">
+                                <option v-for="val in methods" :key="val" :value="val">{{val}}</option>
+                            </template>
+                            <template v-else-if="item.key == 'duration'">
+                                <option v-for="val in durations" :key="val" :value="val">{{val}}</option>
+                            </template>
+                            <template v-else-if="item.key == 'audio'">
+                                <option v-for="val in audioList" :key="val" :value="val">{{val}}</option>
+                            </template>
+                        </select>
+                        <div class="form-text" v-else-if="item.type == 'text'">
+                            {{item.text}}
+                        </div>
+                        <div class="form-link" v-else-if="item.type == 'link'"><a :href="item.url" target="_blank">{{item.text || item.url}}</a></div>
                     </div>
-                    <div class="form-link" v-else-if="item.type == 'link'"><a :href="item.url" target="_blank">{{item.text || item.url}}</a></div>
+                    <div class="form-tips" v-if="item.tips">{{item.tips}}</div>
+                    <div class="form-tips cert-download" v-if="item.key == 'tls' && certUrl">默认下载地址：<a :href="certUrl" target="_blank">{{certUrl}}</a></div>
                 </div>
-                <div class="form-tips" v-if="item.tips">{{item.tips}}</div>
-                <div class="form-tips cert-download" v-if="item.key == 'tls' && certUrl">下载地址：<a :href="certUrl" target="_blank">{{certUrl}}</a></div>
-            </div>
 
-            <div class="section-tips" v-if="menu.key == 'api' && form && form.api.enable && form.api.port">
-                <div class="form-label">本机接口地址示例：</div>
-                <div class="form-link" v-for="ip in ips" :key="ip">http://{{formatIP(ip)}}:{{form.api.port}}</div>
-            </div>
-            <div class="section-tips" v-if="menu.key == 'system'">
-                <div class="form-label">版本：<span class="form-text">{{version}}</span> <div class="button button-mini" @click="checkVersion">检查更新</div></div>
-                <div class="form-tips"></div>
-                <div class="form-label">消息总数：<span class="form-text">{{msgCount}}</span> <div class="button button-mini" @click="clearMessage">清空</div></div>
-                <div class="form-tips"></div>
-                <div class="form-label">官网：<a class="form-link" href="https://push.i-i.me/" target="_blank">https://push.i-i.me/</a></div>
-                <div class="form-tips"></div>
-                <div class="form-label">仓库：<a class="form-link" href="https://github.com/yafoo/pushme-client" target="_blank">GitHub</a> | <a class="form-link" href="https://gitee.com/yafu/pushme-client" target="_blank">Gitee</a></div>
+                <div class="section-tips" v-if="menu.key == 'api' && form && form.api.enable && form.api.port">
+                    <div class="form-label">本机接口地址示例：</div>
+                    <div class="form-link" v-for="ip in ips" :key="ip">http://{{formatIP(ip)}}:{{form.api.port}}</div>
+                </div>
+                <div v-if="menu.key == 'about'">
+                    <div class="form-label">版本：<span class="form-text">{{version}}</span> <div class="button form-button" @click="checkVersion(true)">检查更新</div></div>
+                    <div class="form-label">消息总数：<span class="form-text">{{msgCount}}</span> <div class="button form-button" @click="clearMessage">清空</div></div>
+                    <div class="form-label">官网：<a class="form-link" href="https://push.i-i.me/" target="_blank">https://push.i-i.me/</a></div>
+                    <div class="form-label">仓库：<a class="form-link" href="https://github.com/yafoo/pushme-client" target="_blank">GitHub</a> | <a class="form-link" href="https://gitee.com/yafu/pushme-client" target="_blank">Gitee</a></div>
+                </div>
             </div>
         </div>
     </div>
@@ -66,7 +65,7 @@
 </template>
 
 <script>
-import { GoGetIps, GoGetVersion, GoCheckVersion, GoRestart } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoGetIps, GoGetVersion, GoRestart } from "../../bindings/PushMe/internal/services/utilsservice";
 import { GoGetSetting, GoSaveSetting, GoGetSettingDefault } from "../../bindings/PushMe/internal/services/settingservice";
 import { GoClearMessage, GoGetMessageCount } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenPlugin } from "../../bindings/PushMe/internal/services/appservice";
@@ -88,7 +87,7 @@ export default {
                 {name: '自建服务', key: 'host', items: [
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：关闭'},
                     {label: 'TLS/SSL', key: 'tls', type: 'select', tips: '提示：自签名证书需要导入浏览器中'},
-                    {label: 'IP或域名', key: 'ip', type: 'input', tips: ''},
+                    {label: 'IP或域名', key: 'ip', type: 'input', tips: '提示：不加http或https，示例：192.168.1.1 或 www.example.com 或 [::1]'},
                     {label: '服务端口', key: 'port', type:'input', tips: 'PushMe Server v1.3.0+默认端口：3010，PushMe Server v2.0.0+默认端口：3100'},
                     {label: '离线消息', key: 'offline_msg', type: 'select', tips: '默认：不接收'},
                     {label: 'push_key', key: 'push_key', type: 'input', tips: 'PushMe APP 获取的push_key，并需在PushMe Server上配置'},
@@ -96,22 +95,23 @@ export default {
                 {name: '消息插件', key: 'plugin', items: []},
                 {name: '消息转发', key: 'repost', items: [
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：关闭'},
-                    {label: '转发网址', key: 'url', type: 'input', tips: '完整URL，包含端口'},
+                    {label: '转发网址', key: 'url', type: 'input', tips: '完整URL，包含http前缀和端口号'},
                     {label: '请求方式', key: 'method', type: 'select', tips: '默认：POST/JSON'},
                     {label: '关键词限制', key: 'limit', type: 'input', tips: 'title包含关键词，多个以|隔开'},
                     {label: '关键词排除', key: 'omit', type: 'input', tips: 'title不含关键词，多个以|隔开'},
                 ]},
                 {name: '桌面通知', key: 'notice', items: [
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
-                    {label: '持续时间', key: 'duration', type: 'select', tips: '默认：short'},
-                    {label: '提示音乐', key: 'audio', type: 'select', tips: '默认：default'},
+                    // {label: '持续时间', key: 'duration', type: 'select', tips: '默认：short'},
+                    // {label: '提示音乐', key: 'audio', type: 'select', tips: '默认：default'},
                 ]},
                 {name: '其他设置', key: 'other', items: [
                     {label: 'HTML消息JS支持', key: 'html_js', type: 'select', tips: '默认：禁用'},
                 ]},
-                {name: '系统信息', key: 'system', items: [
+                {name: '系统设置', key: 'system', items: [
                     {label: '开机启动', key: 'enable', type: 'select', tips: '默认：关闭'},
                 ]},
+                {name: '关于我们', key: 'about', items: []},
             ],
             enables: [true, false],
             offlines: [false, true],
@@ -153,6 +153,9 @@ export default {
         this.getVersion();
         this.getMcount();
     },
+    mounted() {
+        this.checkVersion();
+    },
     methods: {
         getSetting() {
             GoGetSetting().then(res => {
@@ -186,7 +189,7 @@ export default {
         },
         getLabelTips(menu, item) {
             let tips = '';
-            if(item.key == 'ip') {
+            if(menu.key == 'api' && item.key == 'ip') {
                 if(this.form[menu.key].ip === '') {
                     tips = '置空，所有本机ip有效！';
                 } else if(!~this.ips.indexOf(this.form[menu.key].ip.replace('[', '').replace(']', ''))) {
@@ -196,6 +199,21 @@ export default {
             return tips ? `(${tips})` : '';
         },
         saveSetting() {
+            if(this.form.host.enable) {
+                if(this.form.host.ip === '') {
+                    this.menuClick('host');
+                    return WebToast('请填写自建服务IP或域名！');
+                } else if(this.form.host.ip.indexOf('http') > -1) {
+                    this.menuClick('host');
+                    return WebToast('自建服务IP或域名不能带http://或https://！');
+                }
+            }
+            if(this.form.repost.enable) {
+                if(!this.form.repost.url) {
+                    this.menuClick('repost');
+                    return WebToast('请填写接收消息转发的网址！');
+                }
+            }
             GoSaveSetting(this.form).then(res => {
                 if (res === true) {
                     WebToast('保存成功，重启后生效！');
@@ -211,11 +229,11 @@ export default {
             this.current = key;
             document.getElementById(key).scrollIntoView();
         },
-        checkVersion() {
-            WebCheckVersion(true);
+        checkVersion(tips = false) {
+            WebCheckVersion(tips);
         },
         clearMessage() {
-            WebConfirm('该操作会清空文本消息，不会删除数据消息。', '确定清空？', action => {
+            WebConfirm('该操作会清空通知消息，不会删除数据消息。', '确定清空？', action => {
                 if(action != 'ok') {
                     return;
                 }
@@ -264,6 +282,7 @@ export default {
     font-size: 12px;
     cursor: pointer;
     position: relative;
+    transition: background-color .2s;
 }
 .setting-menu-item:hover,
 .setting-menu-item.hover {
@@ -290,10 +309,11 @@ export default {
 }
 .form-section {
     height: 100vh;
-    padding: 5px 8px 50px;
     overflow-y: auto;
     overflow-y: overlay;
-    padding-bottom: 50px;
+}
+.form-list {
+    padding: 5px calc(100% + 90px - 100vw + 8px) 50px 8px;
 }
 .form-item {
     margin-bottom: 8px;
@@ -313,6 +333,10 @@ export default {
 }
 .form-link {
     color: var(--color-primary);
+    word-break: break-all;
+    line-height: 1.2;
+    padding: 3px;
+    overflow: hidden;
 }
 .form-tools {
     position: absolute;
@@ -325,11 +349,18 @@ export default {
 }
 .section-tips {
     border-top: 1px dashed #ccc;
-    padding-top: 8px;
+    padding-top: 10px;
+}
+#about {
+    padding-top: 10px;
+}
+#about .form-label {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 8px;
 }
 
-.button-mini {
-    display: inline-block;
+.form-button {
     box-sizing: content-box;
     font-size: 12px;
     height: 12px;

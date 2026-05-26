@@ -5,6 +5,7 @@ import (
 	db "PushMe/internal/models"
 	"PushMe/internal/request"
 	"PushMe/internal/setting"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -99,11 +100,18 @@ func RepostMessage(msg db.Msg) {
 	log.Println("RepostMessage")
 }
 
-func CheckVersion() {
+func CheckVersion() (result string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println(r)
-			Toast(r.(string))
+			switch v := r.(type) {
+			case string:
+				result = v
+			case error:
+				result = v.Error()
+			default:
+				result = fmt.Sprintf("unknown panic: %v", v)
+			}
 		}
 	}()
 
@@ -113,8 +121,7 @@ func CheckVersion() {
 			"version": constant.AppVersion,
 		},
 	}
-	result := req.Post()
-	EventEmit("event:version", result)
+	return req.Post()
 }
 
 func Toast(message string) {
