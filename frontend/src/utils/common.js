@@ -1,4 +1,5 @@
 import { GoNotification, GoCheckVersion } from "../../bindings/PushMe/internal/services/utilsservice";
+import { calcTitleInfo } from "./message";
 
 export const query = () => new URLSearchParams(window.location.search)
 
@@ -101,16 +102,6 @@ export function isSvgMsg(msg) {
     return msg.type == 'svg';
 }
 
-export function parseTitle(title='') {
-    const reg = /^\[([iswf])\]/;
-    const res = reg.exec(title);
-    if(res) {
-        return {theme: res[1], title: title.replace(reg, '')};
-    } else {
-        return {theme: '', title};
-    }
-}
-
 export function getShortDate(input) {
     try {
         // 尝试直接解析日期
@@ -183,8 +174,8 @@ export function WebCheckVersion(tips = false) {
 
 export function WebNotification(message) {
     const msg = {...message};
-    const titles = parseTitle(msg.title);
-    msg.title = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[titles.theme] + ' ' + titles.title;
+    const titleInfo = calcTitleInfo(msg.title);
+    msg.title = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[titleInfo.theme] + (titleInfo.user || `[${titleInfo.user}]`) + titleInfo.title;
     if(msg.type == 'html') {
         msg.content = removeStyleScript(msg.content);
     }

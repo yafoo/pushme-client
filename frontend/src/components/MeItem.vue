@@ -1,15 +1,24 @@
 <template>
-<div class="card item" :class="theme">
-    <div class="item-head"><div class="item-title">{{title}}</div><div class="item-date">{{date}}</div></div>
-    <div class="item-content" v-if="content !== ''">{{content}}</div>
+<div class="row">
+    <div class="face" v-if="user !== ''">
+        <me-avatar :user="user" :face="face"></me-avatar>
+        <div class="face-user">{{user}}</div>
+    </div>
+    <div class="card item" :class="themeClass">
+        <div class="item-head"><div class="item-title">{{title}}</div><div class="item-date">{{date}}</div></div>
+        <div class="item-content" v-if="content !== ''">{{content}}</div>
+    </div>
 </div>
 </template>
 
 <script>
 import { markRaw } from 'vue'
-import { parseTitle, isMarkMsg, isHtmlMsg, removeStyleScript, getShortDate } from "../utils/common";
+import { isMarkMsg, isHtmlMsg, removeStyleScript, getShortDate } from "../utils/common";
+import { calcTitleInfo } from "../utils/message";
+import MeAvatar from "./MeAvatar.vue";
 
 export default {
+    components: { MeAvatar },
     props: {
         message: {
             type: Object,
@@ -18,8 +27,10 @@ export default {
     },
     data() {
         return {
+            themeClass: '',
+            user: '',
+            face: '',
             title: '',
-            theme: '',
             content: '',
             date: '',
             md: null,
@@ -29,18 +40,20 @@ export default {
         message: {
             deep: true,
             handler() {
-                this.date = getShortDate(this.message.date);
-                this.parseTitle();
-                this.renderContent();
+                this.parseMsg();
             },
             immediate: true,
         }
     },
     methods: {
-        parseTitle() {
-            const res = parseTitle(this.message.title);
-            this.title = (res.title + '' || '').replace(/^\[#/, '[');
-            this.theme = res.theme ? 'theme ' + res.theme : '';
+        parseMsg() {
+            const titleInfo = calcTitleInfo(this.message.title);
+            this.themeClass = titleInfo.theme ? `theme ${titleInfo.theme}` : '';
+            this.user = titleInfo.user;
+            this.face = titleInfo.face;
+            this.title = titleInfo.title;
+            this.date = getShortDate(this.message.date);
+            this.renderContent();
         },
         async renderContent() {
             let content = this.message.content;
@@ -65,7 +78,27 @@ export default {
 </script>
 
 <style scoped>
+.row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.face {
+    width: 42px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.face-user {
+    height: 10px;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    text-align: center;
+    overflow: hidden;
+}
 .item {
+    flex: 1;
     line-height: 1.4;
     cursor: pointer;
     user-select: text;

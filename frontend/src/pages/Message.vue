@@ -11,7 +11,8 @@
 
 <script>
 import { GoGetMessage, GoDelMessage } from "../../bindings/PushMe/internal/services/messageservice";
-import { parseTitle, WebToast, WebConfirm, query } from "../utils/common";
+import { WebToast, WebConfirm, query } from "../utils/common";
+import { calcTitleInfo } from "../utils/message";
 import { Events } from '@wailsio/runtime'
 import MeContent from "../components/MeContent.vue";
 
@@ -29,8 +30,8 @@ export default {
         message: {
             deep: true,
             handler() {
-                const res = parseTitle(this.message.title);
-                this.title = (res.title + '' || '').replace(/^\[#/, '[');
+                const res = calcTitleInfo(this.message.title);
+                this.title = (res.title + '' || '');
                 this.theme = res.theme ? 'theme ' + res.theme : '';
             },
         }
