@@ -175,7 +175,7 @@ export function WebCheckVersion(tips = false) {
 export function WebNotification(message) {
     const msg = {...message};
     const titleInfo = calcTitleInfo(msg.title);
-    msg.title = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[titleInfo.theme] + (titleInfo.user || `[${titleInfo.user}]`) + titleInfo.title;
+    msg.title = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[titleInfo.theme] + (titleInfo.user ? `[${titleInfo.user}]` : '') + titleInfo.title;
     if(msg.type == 'html') {
         msg.content = removeStyleScript(msg.content);
     }

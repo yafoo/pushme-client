@@ -5,7 +5,7 @@
 💬 Windows 桌面消息通知客户端 | 实时接收手机推送消息
 
 [![GitHub release](https://img.shields.io/github/v/release/yafoo/pushme-client)](https://github.com/yafoo/pushme-client/releases)
-[![Go Version](https://img.shields.io/badge/Go-1.21.8+-blue)](https://golang.org/)
+[![Go Version](https://img.shields.io/badge/Go-1.25+-blue)](https://golang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-lightgrey)](https://www.microsoft.com/windows)
 
@@ -15,7 +15,7 @@
 
 ## 📖 项目简介
 
-PushMeClient 是一款专为 Windows (Win10+) 设计的桌面消息通知客户端，能够实时接收并展示来自 [PushMe](https://push.i-i.me/) APP 转发的各类消息。让您在工作期间无需频繁查看手机，即可在电脑上快速浏览短信、应用通知等重要信息。
+PushMeClient 是一款专为 Windows (Win10+) 设计的桌面消息通知客户端,能够实时接收并展示来自 [PushMe](https://push.i-i.me/) APP 转发的各类消息。让您在工作期间无需频繁查看手机,即可在电脑上快速浏览短信、应用通知等重要信息。
 
 ### ✨ 核心特性
 
@@ -26,11 +26,11 @@ PushMeClient 是一款专为 Windows (Win10+) 设计的桌面消息通知客户�
 - 🏠 **自建服务支持**：可连接自建的 PushMeServer 服务
 - 🚀 **系统集成**：开机自启动、Windows 原生通知推送
 - ⚙️ **可视化配置**：友好的图形化设置界面
-- 💻 **轻量高效**：基于 WebView 技术，内存占用低，界面清晰流畅
+- 💻 **轻量高效**：基于 Wails v3 框架，内存占用低，界面清晰流畅
 
 ### 🔄 适用场景
 
-除了接收 PushMe APP 的消息转发，还可以对接其他应用的消息推送，例如：
+除了接收 PushMe APP 的消息转发,还可以对接其他应用的消息推送，例如：
 - [SmsForwarder](https://github.com/pppscn/SmsForwarder) - 短信转发器
 - 自定义应用通知推送
 - 服务器监控告警消息
@@ -87,55 +87,50 @@ PushMeClient 独有功能，支持动态图表消息展示：
 
 | 层级 | 技术选型 |
 |------|----------|
-| 后端语言 | Go 1.21.8+ |
-| UI 框架 | webview/webview_go |
+| 后端语言 | Go 1.25+ |
+| 桌面框架 | Wails v3 (alpha.90) |
 | 前端框架 | Vue.js 3 (Global Build) |
 | 图表库 | ECharts 5 |
 | Markdown 解析 | markdown-it |
 | 数据库 | SQLite + GORM |
-| 系统交互 | go-ole (Windows COM)、go-toast |
+| 系统交互 | go-ole (Windows COM)、wails内置通知 |
 | 安全加固 | DOMPurify (XSS 防护) |
 
 ### 版本演进
 
-- **v1.0**：纯 Go + FyneUI 方案
+- **v1.0**：纯 Go + FyneUI 方案（master分支）
   - ❌ 字体显示模糊
   - ❌ 内存占用较高
   - ❌ 开发体验不佳
 
-- **v2.0**：Go + WebView 方案（当前版本）
+- **v2.0**：Go + WebView 方案（webview分支）
   - ✅ 界面清晰流畅
   - ✅ 内存占用优化
   - ✅ 开发效率提升
   - ✅ 参考了 [http-win-notice](https://github.com/shanghaobo/http-win-notice) 的优秀实现
 
+- **v4.0**：Wails v3 重构版本（wails分支）
+  - ✅ 更现代化的桌面应用框架
+  - ✅ 更好的前后端通信机制
+  - ✅ 更完善的生态系统
+  - ✅ 更简洁的项目结构
+
 ---
 
 ## 📸 界面预览
 
-<div align="center">
-
-| 主页 | 消息列表 |
-|------|----------|
-| ![主页](https://github.com/user-attachments/assets/1c6a9a8b-ac09-4d3e-9988-f00c2afe59fa) | ![消息](https://github.com/user-attachments/assets/cc928c04-3821-483e-a44c-93e7a81e96c3) |
-
-| 小屏展示 | Markdown 渲染 |
-|----------|---------------|
-| ![小屏](https://github.com/user-attachments/assets/8e80d762-1e19-4f12-a58f-b832a9a252b8) | ![markdown](https://github.com/user-attachments/assets/7a23640d-3077-4c7e-bf3d-ef22e1816579) |
-
-| 图表消息 | 系统通知 |
-|----------|----------|
-| ![图表](https://github.com/user-attachments/assets/7e5d619e-b21c-422a-9052-e325567c13f9) | ![通知](https://github.com/user-attachments/assets/6e353862-a75d-42e9-99cd-8d2542498776) |
-
-| 插件管理 | 设置界面 |
-|----------|----------|
-| ![插件](https://github.com/user-attachments/assets/655dbb7b-1a3a-47c8-b448-19caacfac2cf) | ![设置](https://github.com/user-attachments/assets/9ca54ee2-ad15-4d24-b967-f48f834e172b) |
-
-| 图表全屏 |
-|----------|
-| ![图表全屏](https://github.com/user-attachments/assets/8e0d6c00-d3a9-49f6-87d3-650b6cb74a83) |
-
-</div>
+<table>
+  <tr>
+    <td><img src="./screenshot/home.png" width="200"/></td>
+    <td><img src="./screenshot/message.png" width="200"/></td>
+    <td><img src="./screenshot/markdata.png" width="200"/></td>
+  </tr>
+  <tr>
+    <td><img src="./screenshot/dashboard.png" width="200"/></td>
+    <td><img src="./screenshot/svg.png" width="200"/></td>
+    <td><img src="./screenshot/notification.png" width="200"/></td>
+  </tr>
+</table>
 
 ---
 
@@ -144,25 +139,22 @@ PushMeClient 独有功能，支持动态图表消息展示：
 ```
 PushMeClient/
 ├── constant/          # 全局常量定义
-├── db/                # 数据库模块
-│   ├── msg/           # 消息数据操作
-│   ├── plugin/        # 插件数据操作
-│   └── db.go          # 数据库初始化
-├── server/            # Web 服务器
-│   ├── html/          # 前端资源
-│   │   ├── static/    # 静态文件 (JS/CSS)
-│   │   ├── view/      # HTML 页面模板
-│   │   └── html.go    # 资源加载辅助
-│   └── server.go      # HTTP 服务器实现
-├── utils/             # 工具类
+├── frontend/          # 前端资源目录
+│   ├── bindings/      # Wails 绑定文件
+│   ├── public/        # 静态资源 (CSS)
+│   ├── src/           # Vue 源码 (Components, Pages, Utils)
+│   └── package.json   # 前端依赖配置
+├── internal/          # 后端核心逻辑
+│   ├── api/           # HTTP API 接口
+│   ├── models/        # 数据模型 (msg, plugin, db)
 │   ├── request/       # HTTP 请求封装
+│   ├── services/      # 业务服务层 (app, message, plugin, setting)
 │   ├── setting/       # 配置管理
-│   ├── sys/           # 系统工具
-│   └── init.go        # 初始化逻辑
-├── win/               # Windows 特定功能
-├── makelnk/           # 快捷方式创建（开机自启）
+│   └── utils/         # 通用工具
 ├── main.go            # 程序入口
-└── build.bat          # 构建脚本
+├── wails.json         # Wails 项目配置
+├── Taskfile.yml       # 任务编排配置
+└── README.md          # 项目文档
 ```
 
 ---
@@ -172,8 +164,8 @@ PushMeClient/
 ### 环境要求
 
 - **操作系统**：Windows 10 及以上
-- **Go 版本**：>= 1.21.8
-- **编译器**：GCC（用于编译 CGO 依赖，如 sqlite3 和 webview）
+- **Go 版本**：>= 1.25
+- **Node.js**：用于前端开发（推荐最新 LTS 版本）
 
 ### 本地开发
 
@@ -182,24 +174,29 @@ PushMeClient/
 git clone https://github.com/yafoo/pushme-client.git
 cd pushme-client
 
-# 2. 下载依赖
+# 2. 下载后端依赖
 go mod tidy
 
-# 3. 运行程序
-go run main.go
+# 3. 下载前端依赖（首次运行需要）
+cd frontend
+npm install
+cd ..
+
+# 4. 运行程序（开发模式）
+wails3 run
+# 或
+wails3 dev
 ```
 
 ### 编译构建
 
 ```bash
-# 使用提供的构建脚本
-build.bat
+# 使用 Taskfile 构建（推荐）
+wails3 build
 
 # 或手动构建
-go build -o PushMeClient.exe .
+go build -o bin/PushMeClient.exe .
 ```
-
-> 💡 确保 `CGO_ENABLED=1` 以支持 sqlite3 和 webview 的编译。
 
 ---
 

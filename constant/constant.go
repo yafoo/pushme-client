@@ -11,7 +11,7 @@ import (
 const AppDir string = "push-me"
 const AppID string = "PushMe"
 const AppName string = "PushMe"
-const AppVersion string = "v3.4.0"
+const AppVersion string = "v4.0.0"
 const UrlVersion string = "https://push.i-i.me/api/version"
 const WindowWidth int = 320
 const WindowHeight int = 520
