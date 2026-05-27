@@ -5,6 +5,7 @@ export const query = () => new URLSearchParams(window.location.search)
 export function WebToast(msg, time, callback) {
     console.log('WebToast:', msg);
     msg === undefined && (msg = '');
+    typeof msg === 'object' && (msg = JSON.stringify(msg));
     typeof time === 'function' && (callback = time, time = 3000)
     time === undefined && (time = 3000);
     WebToast.index === undefined && (WebToast.index = 1000);
@@ -65,12 +66,15 @@ export function WebConfirm(content, title, callback) {
     document.body.append(dom);
 }
 
+export const TextTypes = ['text', 'markdown', 'html', 'url', '']
+export const DataTypes = ['data', 'markdata', 'chart', 'echarts', 'svg']
+
 export function isTextMsg(msg) {
-    return !msg.type || msg.type == 'text' || msg.type == 'markdown' || msg.type == 'html';
+    return TextTypes.includes(msg.type);
 }
 
 export function isDataMsg(msg) {
-    return msg.type == 'data' || msg.type == 'markdata' || msg.type == 'chart' || msg.type == 'echarts';
+    return DataTypes.includes(msg.type);
 }
 
 export function isMarkMsg(msg) {
@@ -87,6 +91,14 @@ export function isEChartsMsg(msg) {
 
 export function isHtmlMsg(msg) {
     return msg.type == 'html';
+}
+
+export function isUrlMsg(msg) {
+    return msg.type == 'url';
+}
+
+export function isSvgMsg(msg) {
+    return msg.type == 'svg';
 }
 
 export function parseTitle(title='') {

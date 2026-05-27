@@ -32,14 +32,15 @@ export default {
     mounted() {
         this.getList();
 
-        Events.On('message:new', (msg) => {
-            if(isDataMsg(msg)) {
-                console.log('message:new', msg);
-                this.updateMessage(msg);
+        Events.On('message:new', ({data}) => {
+            if(isDataMsg(data)) {
+                console.log('message:new', data);
+                this.updateMessage(data);
             }
         });
-        Events.On('message:del', (detail) => {
-            if(isDataMsg(detail)) {
+        Events.On('message:del', ({data}) => {
+            if(isDataMsg(data)) {
+                console.log('message:del', data);
                 this.getList();
             }
         });
@@ -171,6 +172,9 @@ export default {
     margin-top: 5px !important;
 }
 .dashboard-content canvas {
+    margin-top: 5px !important;
+}
+.dashboard-content .svg {
     margin-top: 5px !important;
 }
 </style>

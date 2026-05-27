@@ -38,7 +38,8 @@ func (u *UtilsService) GoNotification(msg db.Msg) {
 			Title: msg.Title,
 			Body:  msg.Content,
 			Data: map[string]interface{}{
-				"id": msg.ID,
+				"id":   msg.ID,
+				"type": msg.Type,
 			},
 		})
 		if err != nil {
@@ -72,6 +73,11 @@ func (u *UtilsService) GoGetVersion() string {
 
 func (u *UtilsService) GoCheckVersion() string {
 	return utils.CheckVersion()
+}
+
+func (u *UtilsService) GoOpenBrowser(url string) bool {
+	err := utils.OpenBrowser(url)
+	return err == nil
 }
 
 func (u *UtilsService) GoRestart() {

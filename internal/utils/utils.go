@@ -16,7 +16,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-func EventEmit(event string, data ...any) {
+func EventEmit(event string, data any) {
 	app := application.Get()
 	app.Event.Emit(event, data)
 }
@@ -152,6 +152,38 @@ func GetIps() (ips []string) {
 		}
 	}
 	return ips
+}
+
+// 辅助函数：检查字符串是否在切片中
+func Contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
+
+func OpenBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start", url}
+	case "darwin":
+		cmd = "open"
+		args = []string{url}
+	case "linux":
+		cmd = "xdg-open"
+		args = []string{url}
+	default:
+		cmd = "open" // 默认尝试 open 命令
+		args = []string{url}
+	}
+
+	return exec.Command(cmd, args...).Run()
 }
 
 func IsWindows() bool {

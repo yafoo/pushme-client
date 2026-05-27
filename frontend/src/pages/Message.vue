@@ -39,10 +39,10 @@ export default {
         this.init();
     },
     mounted() {
-        Events.On('message:new', (msg) => {
-            if(msg.id == this.id) {
-                console.log('message:new', msg);
-                this.message = {...msg};
+        Events.On('message:new', ({data}) => {
+            if(data.id == this.id) {
+                console.log('message:new', data);
+                this.message = {...data};
             }
         });
     },

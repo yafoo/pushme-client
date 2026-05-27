@@ -4,7 +4,7 @@
 
 <script>
 import { markRaw } from 'vue'
-import { isTextMsg, isMarkMsg, isHtmlMsg, isChartMsg, isEChartsMsg, isDataMsg } from "../utils/common";
+import { isTextMsg, isMarkMsg, isHtmlMsg, isChartMsg, isEChartsMsg, isDataMsg, isSvgMsg } from "../utils/common";
 
 export default {
     props: {
@@ -30,7 +30,7 @@ export default {
     },
     methods: {
         async render() {
-            let component = 'MeText';
+            let component = '';
             if(isMarkMsg(this.message)) {
                 component = 'MeMarkdown';
             } else if(isHtmlMsg(this.message)) {
@@ -39,8 +39,12 @@ export default {
                 component = 'MeChart';
             } else if(isEChartsMsg(this.message)) {
                 component = 'MeEcharts';
+            } else if(isSvgMsg(this.message)) {
+                component = 'MeSvg';
             } else if(isDataMsg(this.message)) {
                 component = 'MeData';
+            } else {
+                component = 'MeText';
             }
 
             const module = await import(`../components/${component}.vue`)

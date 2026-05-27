@@ -14,8 +14,9 @@
 <script>
 import { GoGetMessageList, GoAddMessage } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenMessage, GoOpenDashboard, GoOpenSetting } from "../../bindings/PushMe/internal/services/appservice";
+import { GoOpenBrowser } from "../../bindings/PushMe/internal/services/utilsservice";
 import { Events } from '@wailsio/runtime';
-import {isTextMsg, isDataMsg, WebCheckVersion, WebToast, WebNotification } from "../utils/common";
+import {isTextMsg, isDataMsg, isUrlMsg, WebCheckVersion, WebToast, WebNotification } from "../utils/common";
 import { initPlugin } from "../utils/plugin";
 import { initHost } from "../utils/host";
 import { markRaw } from 'vue';
@@ -39,25 +40,35 @@ export default {
         this.init();
 
         Events.On('message:api', ({data}) => {
-            console.log('message:api', data[0]);
-            this.calcMessage(data[0]);
+            console.log('message:api', data);
+            this.calcMessage(data);
         });
-        Events.On('message:del', (detail) => {
-            isTextMsg(detail) && this.getList();
+        Events.On('message:del', ({data}) => {
+            console.log('message:del', data);
+            isTextMsg(data) && this.getList();
         });
         Events.On('plugin:change', () => {
             this.initPlugin();
         });
 
         Events.On('notification:action', ({data}) => {
-            console.log('notification:action', data[0]);
-            GoOpenMessage(data[0].userInfo.id).catch(err => {
-                WebToast('消息打开失败:' + err.message);
-            });
+            console.log('notification:action', data);
+            const userInfo = data.userInfo;
+            if(isUrlMsg({type: userInfo.type})) {
+                GoOpenBrowser(data.body).then(res => {
+                    if(!res) {
+                        WebToast('打开链接失败', 2000);
+                    }
+                });
+            } else {
+                GoOpenMessage(userInfo.id).catch(err => {
+                    WebToast('消息打开失败:' + err.message);
+                });
+            }
         });
         Events.On('event:toast', ({data}) => {
-            console.log('Events Toast', data[0]);
-            WebToast(data[0]);
+            console.log('event:toast', data);
+            WebToast(data);
         });
     },
     unmounted() {
@@ -116,7 +127,15 @@ export default {
         },
         openMessage(msg) {
             if(window.getSelection().toString() === '') {
-                GoOpenMessage(msg.id);
+                if(isUrlMsg(msg)) {
+                    GoOpenBrowser(msg.content).then(res => {
+                        if(!res) {
+                            WebToast('打开链接失败', 2000);
+                        }
+                    });
+                } else {
+                    GoOpenMessage(msg.id);
+                }
             }
         },
         openDashboard() {

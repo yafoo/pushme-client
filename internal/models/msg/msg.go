@@ -8,8 +8,6 @@ import (
 )
 
 var typeKey = "type in (?)"
-var textWhere = []string{"text", "markdown", "html", ""}
-var dataWhere = []string{"data", "markdata", "chart", "echarts"}
 
 type ChartData struct {
 	Type  string    `json:"type"`
@@ -20,8 +18,8 @@ type ChartData struct {
 
 func parseChartData(str string) ChartData {
 	data := ChartData{
-		Type:  "bar", // 默认类型
-		Size:  10,    // 默认大小
+		Type:  db.ChartTypeDefault, // 默认类型
+		Size:  10,                  // 默认大小
 		List:  []float64{},
 		Label: []string{},
 	}
@@ -35,7 +33,7 @@ func parseChartData(str string) ChartData {
 			if err == nil {
 				data.Size = uint(size)
 			}
-		} else if contains([]string{"bar", "line", "pie"}, typeSize[0]) {
+		} else if db.ChartMap[typeSize[0]] {
 			data.Type = typeSize[0]
 		} else {
 			size, err := strconv.ParseUint(typeSize[0], 10, 64)
@@ -65,16 +63,6 @@ func parseChartData(str string) ChartData {
 	}
 
 	return data
-}
-
-// 辅助函数：检查字符串是否在切片中
-func contains(slice []string, item string) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
-		}
-	}
-	return false
 }
 
 func mergeChartData(first, second ChartData) ChartData {
@@ -119,7 +107,7 @@ func mergeChartData(first, second ChartData) ChartData {
 }
 
 func Add(data *db.Msg) db.Msg {
-	if data.Type == "data" || data.Type == "markdata" || data.Type == "chart" || data.Type == "echarts" {
+	if data.IsDataMsg() {
 		res := db.Msg{}
 		db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
 		if res.ID > 0 {
@@ -147,6 +135,8 @@ func Add(data *db.Msg) db.Msg {
 				data.Content = string(jsonBytes)
 			}
 		}
+	} else if !data.IsTextMsg() {
+		data.Type = db.TextTypeDefault
 	}
 	db.Db.Save(data)
 	return *data
@@ -164,26 +154,26 @@ func Del(id int) bool {
 }
 
 func ClearText() bool {
-	db.Db.Where("type IN ?", []string{"", "text", "markdown"}).Delete(&db.Msg{}, "type IN ?", []string{"", "text", "markdown"})
+	db.Db.Where("type IN ?", *db.TextTypes).Delete(&db.Msg{}, "type IN ?", *db.TextTypes)
 	return true
 }
 
 func MsgList(page int, pageSize int) []db.Msg {
 	offset := (page - 1) * pageSize
 	var list []db.Msg
-	db.Db.Where(typeKey, textWhere).Offset(offset).Limit(pageSize).Order("id desc").Find(&list)
+	db.Db.Where(typeKey, *db.TextTypes).Offset(offset).Limit(pageSize).Order("id desc").Find(&list)
 	return list
 }
 
 func DataList() []db.Msg {
 	var list []db.Msg
-	db.Db.Where(typeKey, dataWhere).Find(&list)
+	db.Db.Where(typeKey, *db.DataTypes).Find(&list)
 	return list
 }
 
 func CountText() int {
 	var count int64
-	err := db.Db.Model(&db.Msg{}).Where("type IN ?", []string{"", "text", "markdown"}).Count(&count).Error
+	err := db.Db.Model(&db.Msg{}).Where("type IN ?", *db.TextTypes).Count(&count).Error
 	if err != nil {
 		return 0
 	}

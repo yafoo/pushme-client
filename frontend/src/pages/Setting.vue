@@ -36,21 +36,23 @@
                         <div class="form-text" v-else-if="item.type == 'text'">
                             {{item.text}}
                         </div>
-                        <div class="form-link" v-else-if="item.type == 'link'"><a :href="item.url" target="_blank">{{item.text || item.url}}</a></div>
+                        <div class="form-link" v-else-if="item.type == 'link'"><span @click="openUrl(item.url)">{{item.text || item.url}}</span></div>
                     </div>
                     <div class="form-tips" v-if="item.tips">{{item.tips}}</div>
-                    <div class="form-tips cert-download" v-if="item.key == 'tls' && certUrl">默认下载地址：<a :href="certUrl" target="_blank">{{certUrl}}</a></div>
+                    <div class="form-tips cert-download" v-if="item.key == 'tls' && certUrl">默认下载地址：<span @click="openUrl(certUrl)" style="cursor: pointer;">{{certUrl}}</span></div>
                 </div>
 
                 <div class="section-tips" v-if="menu.key == 'api' && form && form.api.enable && form.api.port">
                     <div class="form-label">本机接口地址示例：</div>
                     <div class="form-link" v-for="ip in ips" :key="ip">http://{{formatIP(ip)}}:{{form.api.port}}</div>
                 </div>
+                <div class="section-tips" v-if="menu.key == 'other'">
+                    <div class="form-label">消息总数：<span class="form-text">{{msgCount}}</span> <div class="button form-button" @click="clearMessage">清空</div></div>
+                </div>
                 <div v-if="menu.key == 'about'">
                     <div class="form-label">版本：<span class="form-text">{{version}}</span> <div class="button form-button" @click="checkVersion(true)">检查更新</div></div>
-                    <div class="form-label">消息总数：<span class="form-text">{{msgCount}}</span> <div class="button form-button" @click="clearMessage">清空</div></div>
-                    <div class="form-label">官网：<a class="form-link" href="https://push.i-i.me/" target="_blank">https://push.i-i.me/</a></div>
-                    <div class="form-label">仓库：<a class="form-link" href="https://github.com/yafoo/pushme-client" target="_blank">GitHub</a> | <a class="form-link" href="https://gitee.com/yafu/pushme-client" target="_blank">Gitee</a></div>
+                    <div class="form-label">官网：<span class="form-link" @click="openUrl('https://push.i-i.me/')">https://push.i-i.me/</span></div>
+                    <div class="form-label">仓库：<span class="form-link" @click="openUrl('https://github.com/yafoo/pushme-client')">GitHub</span> | <span class="form-link" @click="openUrl('https://gitee.com/yafu/pushme-client')">Gitee</span></div>
                 </div>
             </div>
         </div>
@@ -65,7 +67,7 @@
 </template>
 
 <script>
-import { GoGetIps, GoGetVersion, GoRestart } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoGetIps, GoGetVersion, GoRestart, GoOpenBrowser } from "../../bindings/PushMe/internal/services/utilsservice";
 import { GoGetSetting, GoSaveSetting, GoGetSettingDefault } from "../../bindings/PushMe/internal/services/settingservice";
 import { GoClearMessage, GoGetMessageCount } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenPlugin } from "../../bindings/PushMe/internal/services/appservice";
@@ -248,6 +250,13 @@ export default {
                 });
             });
         },
+        openUrl(url) {
+            GoOpenBrowser(url).then(res => {
+                if(!res) {
+                    WebToast('打开链接失败', 2000);
+                }
+            });
+        },
         restart() {
             GoRestart();
         },
@@ -358,6 +367,10 @@ export default {
     padding-bottom: 8px;
     border-bottom: 1px solid #eee;
     margin-bottom: 8px;
+}
+#about .form-link {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .form-button {
