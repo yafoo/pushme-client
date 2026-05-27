@@ -60,7 +60,8 @@ var BaseApi string
 
 func init() {
 	if _, err := os.Stat(constant.SettingPath); os.IsNotExist(err) {
-		initFile()
+		setting := GetSettingDefault()
+		saveFile(setting)
 	}
 	InitSetting()
 }
@@ -144,11 +145,6 @@ func GetSettingDefault() SettingType {
 	}
 
 	return setting
-}
-
-func initFile() {
-	setting := GetSettingDefault()
-	saveFile(setting)
 }
 
 func saveFile(setting SettingType) {

@@ -63,7 +63,7 @@ func main() {
 	// 'Mac' options tailor the window when running on macOS.
 	// 'BackgroundColour' is the background colour of the window.
 	// 'URL' is the URL that will be loaded into the webview.
-	windowShowing := false
+	windowShowing := true
 	window := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title: constant.AppName,
 		Mac: application.MacWindow{
@@ -75,7 +75,7 @@ func main() {
 		URL:              "/",
 		Width:            constant.WindowWidth,
 		Height:           constant.WindowHeight,
-		Hidden:           true,
+		Hidden:           false,
 	})
 	window.RegisterHook(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		windowShowing = false
