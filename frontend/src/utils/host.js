@@ -35,7 +35,7 @@ export const initHost = async(onMessage) => {
     const client_id = 'pc_' + sub_topic;
     const options = {
         clientId: client_id,
-        keepalive: 300,
+        keepalive: 120,
     };
     if(host.offline_msg) {
         options.clean = false;
