@@ -30,7 +30,11 @@ func (m *MessageService) GoDelMessage(id int) bool {
 }
 
 func (m *MessageService) GoUpdateMessage(msg db.Msg) bool {
-	return dbMsg.Update(&msg)
+	res := dbMsg.Update(&msg)
+	if res && setting.Setting.Repost.Enable {
+		go utils.RepostMessage(msg)
+	}
+	return res
 }
 
 func (m *MessageService) GoGetMessageCount() int {
