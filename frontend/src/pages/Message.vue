@@ -5,13 +5,15 @@
     <div class="message-content"><me-content :message="message"></me-content></div>
 </div>
 <div class="float-tools" v-if="id > 0">
+    <div class="button-cirle button-edit" v-if="isNote" @click="editNote"><img class="icon" src="/icon/edit.svg"></div>
     <div class="button-cirle" @click="delMessage"><img class="icon" src="/icon/delete.svg"></div>
 </div>
 </template>
 
 <script>
 import { GoGetMessage, GoDelMessage } from "../../bindings/PushMe/internal/services/messageservice";
-import { WebToast, WebConfirm, query } from "../utils/common";
+import { GoOpenNoteEdit } from "../../bindings/PushMe/internal/services/appservice";
+import { WebToast, WebConfirm, query, isNoteMsg } from "../utils/common";
 import { calcTitleInfo } from "../utils/message";
 import { Events } from '@wailsio/runtime'
 import MeContent from "../components/MeContent.vue";
@@ -24,6 +26,7 @@ export default {
             message: {},
             title: '',
             theme: '',
+            isNote: false,
         }
     },
     watch: {
@@ -33,7 +36,9 @@ export default {
                 const res = calcTitleInfo(this.message.title);
                 this.title = (res.title + '' || '');
                 this.theme = res.theme ? 'theme ' + res.theme : '';
+                this.isNote = isNoteMsg(this.message);
             },
+            immediate: true,
         }
     },
     created() {
@@ -65,6 +70,12 @@ export default {
             }).catch(err => {
                 WebToast('消息获取失败:' + err.message);
             });
+        },
+        editNote() {
+            if(!this.id) {
+                return WebToast('便签不存在！');
+            }
+            GoOpenNoteEdit(this.id);
         },
         delMessage() {
             if(!this.id) {
@@ -133,5 +144,18 @@ export default {
     font-size: 14px;
     color: #555;
     line-height: 1.5;
+}
+
+.button-edit {
+    margin-bottom: -42px;
+    opacity: 0;
+    transition: all 0.3s;
+}
+#app:hover .float-tools .button-edit {
+    margin-bottom: 8px;
+    opacity: 1;
+}
+.float-tools:hover .button-edit:hover {
+    opacity: 0.8;
 }
 </style>

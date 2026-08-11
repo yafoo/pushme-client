@@ -15,7 +15,7 @@ func (m *MessageService) GoGetMessageList(page int, pageSize int) []db.Msg {
 
 func (m *MessageService) GoAddMessage(msg db.Msg) db.Msg {
 	res := dbMsg.Add(&msg)
-	if setting.Setting.Repost.Enable {
+	if res.ID > 0 && setting.Setting.Repost.Enable {
 		go utils.RepostMessage(res)
 	}
 	return res
@@ -27,6 +27,10 @@ func (m *MessageService) GoGetMessage(id int) db.Msg {
 
 func (m *MessageService) GoDelMessage(id int) bool {
 	return dbMsg.Del(id)
+}
+
+func (m *MessageService) GoUpdateMessage(msg db.Msg) bool {
+	return dbMsg.Update(&msg)
 }
 
 func (m *MessageService) GoGetMessageCount() int {

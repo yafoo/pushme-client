@@ -68,7 +68,7 @@ export function WebConfirm(content, title, callback) {
 }
 
 export const TextTypes = ['text', 'markdown', 'html', 'url', '']
-export const DataTypes = ['data', 'markdata', 'chart', 'echarts', 'svg']
+export const DataTypes = ['data', 'markdata', 'chart', 'echarts', 'svg', 'note']
 
 export function isTextMsg(msg) {
     return TextTypes.includes(msg.type);
@@ -79,7 +79,7 @@ export function isDataMsg(msg) {
 }
 
 export function isMarkMsg(msg) {
-    return msg.type == 'markdown' || msg.type == 'markdata';
+    return msg.type == 'markdown' || msg.type == 'markdata' || msg.type == 'note';
 }
 
 export function isChartMsg(msg) {
@@ -100,6 +100,10 @@ export function isUrlMsg(msg) {
 
 export function isSvgMsg(msg) {
     return msg.type == 'svg';
+}
+
+export function isNoteMsg(msg) {
+    return msg.type == 'note';
 }
 
 export function getShortDate(input) {

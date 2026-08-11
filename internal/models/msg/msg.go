@@ -111,6 +111,10 @@ func Add(data *db.Msg) db.Msg {
 		res := db.Msg{}
 		db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
 		if res.ID > 0 {
+			// 便签新增不允许标题重复
+			if db.DataMap[data.Type] {
+				return db.Msg{}
+			}
 			res.Title = data.Title
 			res.Type = data.Type
 			res.Date = data.Date
@@ -151,6 +155,11 @@ func Get(id int) db.Msg {
 func Del(id int) bool {
 	db.Db.Delete(&db.Msg{}, id)
 	return true
+}
+
+func Update(data *db.Msg) bool {
+	result := db.Db.Save(data)
+	return result.Error == nil
 }
 
 func ClearText() bool {

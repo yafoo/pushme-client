@@ -17,9 +17,11 @@ type AppService struct{}
 var pageType = struct {
 	Message string
 	Plugin  string
+	Note    string
 }{
 	Message: "message",
 	Plugin:  "plugin",
+	Note:    "note",
 }
 var pageStore map[string]*application.WebviewWindow = map[string]*application.WebviewWindow{}
 
@@ -52,6 +54,11 @@ func init() {
 	time.AfterFunc(time.Second, func() {
 		utils.EventOn("plugin:close", func(event *application.CustomEvent) {
 			closePage(pageType.Plugin, event)
+		})
+	})
+	time.AfterFunc(time.Second, func() {
+		utils.EventOn("note:close", func(event *application.CustomEvent) {
+			closePage(pageType.Note, event)
 		})
 	})
 }
@@ -104,4 +111,24 @@ func (a *AppService) GoOpenPluginEdit(id int) {
 
 func (a *AppService) GoOpenSetting(id int) {
 	a.OpenPage("/index.html?page=Setting", "系统设置")
+}
+
+func (a *AppService) GoOpenNoteEdit(id int) {
+	var pageKey string
+	var url string
+	var title string
+	if id > 0 {
+		url = "/index.html?page=NoteEdit&id=" + strconv.Itoa(id)
+		pageKey = pageType.Note + strconv.Itoa(id)
+		title = "编辑便签"
+	} else {
+		url = "/index.html?page=NoteEdit"
+		pageKey = pageType.Note + "0"
+		title = "新建便签"
+	}
+	var page *application.WebviewWindow = a.OpenPage(url, title)
+	page.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		delete(pageStore, pageKey)
+	})
+	pageStore[pageKey] = page
 }

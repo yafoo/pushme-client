@@ -10,11 +10,14 @@
         </div>
     </div>
 </div>
+<div class="float-tools">
+    <div class="button-cirle" @click="addNote"><img class="icon" src="/icon/add.svg"></div>
+</div>
 </template>
 
 <script>
 import { GoGetDataList } from "../../bindings/PushMe/internal/services/messageservice";
-import { GoOpenMessage } from "../../bindings/PushMe/internal/services/appservice";
+import { GoOpenMessage, GoOpenNoteEdit } from "../../bindings/PushMe/internal/services/appservice";
 import { WebToast, isDataMsg } from "../utils/common";
 import { Events } from '@wailsio/runtime'
 import MeContent from "../components/MeContent.vue";
@@ -74,6 +77,9 @@ export default {
             if(window.getSelection().toString() === '') {
                 GoOpenMessage(msg.id);
             }
+        },
+        addNote() {
+            GoOpenNoteEdit(0);
         },
         updateMessage(msg) {
             let is_update = false;
@@ -208,5 +214,11 @@ export default {
     color: #999;
     line-height: 1.2;
     text-align: center;
+}
+.float-tools {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 100;
 }
 </style>

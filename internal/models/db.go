@@ -6,7 +6,7 @@ import (
 )
 
 var TextTypes *[]string = &[]string{"text", "markdown", "html", "url", ""}
-var DataTypes *[]string = &[]string{"data", "markdata", "chart", "echarts", "svg"}
+var DataTypes *[]string = &[]string{"data", "markdata", "chart", "echarts", "svg", "note"}
 var ChartTypes *[]string = &[]string{"bar", "line", "pie"}
 
 const TextTypeDefault string = "text"
