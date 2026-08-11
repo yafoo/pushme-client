@@ -5,3 +5,5 @@ frontend/node_modules
 frontend/bindings
 build/linux/appimage/build
 build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
+build/android/.gradle
+build/android/build/reports/problems/problems-report.html
