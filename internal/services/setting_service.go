@@ -27,6 +27,8 @@ func (s *SettingService) GoSaveSetting(settingData setting.SettingType) bool {
 	setting.SaveSetting(settingData)
 	utils.Autostart(settingData.System.Enable)
 
+	utils.EventEmit("setting:change", settingData)
+
 	return true
 }
 
@@ -36,4 +38,8 @@ func (s *SettingService) GoGetHost() setting.HostType {
 
 func (s *SettingService) GoGetHtmlJs() bool {
 	return setting.Setting.Other.HtmlJs
+}
+
+func (s *SettingService) GoGetSettingNotice() setting.NoticeType {
+	return setting.Setting.Notice
 }

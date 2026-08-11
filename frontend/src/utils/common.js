@@ -186,3 +186,45 @@ export function WebNotification(message) {
         WebToast('消息发送失败:' + err.message);
     });
 }
+
+export function WebSpeakMsg(message, type) {
+    let text = [];
+    const msg = {...message};
+    if(type.indexOf('title') > -1) {
+        const titleInfo = calcTitleInfo(msg.title);
+        text.push((titleInfo.user ? `[${titleInfo.user}]` : '') + titleInfo.title);
+    }
+    if(type.indexOf('content') > -1) {
+        const content = msg.type == 'html' ? removeStyleScript(msg.content) : msg.content;
+        text.push(content.replace(/\s+/g, ' ').replace(/[#*]+\s/g, '').replace(/<[^>]+>|&[^>]+;/g, ''));
+    }
+
+    text.length && WebSpeakText(text.join('\n'));
+}
+
+export function WebSpeakText(text) {
+    if(!window.speechSynthesis) {
+        return WebToast('当前浏览器不支持语音播报');
+    }
+    // 为了防止队列堆积，先取消正在进行的播报
+    window.speechSynthesis.cancel();
+
+    // 创建 SpeechSynthesisUtterance 实例
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // 设置语言为中文
+    utterance.lang = 'zh-CN';
+    
+    // 设置参数
+    utterance.rate = 1.0;      // 语速 (0.1 - 10)
+    utterance.pitch = 1.0;     // 音调 (0 - 2)
+    utterance.volume = 1.0;     // 音量 (0 - 1)
+
+    // 事件监听
+    utterance.onstart = () => console.log("开始播报...");
+    utterance.onend = () => console.log("播报结束");
+    utterance.onerror = (event) => console.error("播报出错", event);
+
+    // 开始播报
+    window.speechSynthesis.speak(utterance);
+}

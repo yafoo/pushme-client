@@ -32,6 +32,9 @@
                             <template v-else-if="item.key == 'audio'">
                                 <option v-for="val in audioList" :key="val" :value="val">{{val}}</option>
                             </template>
+                            <template v-else-if="item.key == 'speak'">
+                                <option v-for="val in speakList" :key="val" :value="val">{{val || '关闭'}}</option>
+                            </template>
                         </select>
                         <div class="form-text" v-else-if="item.type == 'text'">
                             {{item.text}}
@@ -106,6 +109,7 @@ export default {
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
                     // {label: '持续时间', key: 'duration', type: 'select', tips: '默认：short'},
                     // {label: '提示音乐', key: 'audio', type: 'select', tips: '默认：default'},
+                    {label: '语音通知', key: 'speak', type: 'select', tips: '默认：关闭'},
                 ]},
                 {name: '其他设置', key: 'other', items: [
                     {label: 'HTML消息JS支持', key: 'html_js', type: 'select', tips: '默认：禁用'},
@@ -121,6 +125,7 @@ export default {
             methods: ['GET', 'POST/JSON', 'POST/FORM'],
             durations: ['short', 'long'],
             audioList: ['default', 'im', 'mail', 'reminder', 'sms', 'loopingalarm', 'loopingalarm2', 'loopingalarm3', 'loopingalarm4', 'loopingalarm5', 'loopingalarm6', 'loopingalarm7', 'loopingalarm8', 'loopingalarm9', 'loopingalarm10', 'loopingcall', 'loopingcall2', 'loopingcall3', 'loopingcall4', 'loopingcall5', 'loopingcall6', 'loopingcall7', 'loopingcall8', 'loopingcall9', 'loopingcall10', 'silent'],
+            speakList: ['', 'title', 'content', 'title+content'],
             current: 'api',
             ips: [],
             version: '获取中..',

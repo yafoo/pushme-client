@@ -45,6 +45,7 @@ type NoticeType struct {
 	Enable   bool   `json:"enable"`
 	Duration string `json:"duration"`
 	Audio    string `json:"audio"`
+	Speak    string `json:"speak"`
 }
 
 type OtherType struct {
@@ -130,6 +131,7 @@ func GetSettingDefault() SettingType {
 		Enable:   true,
 		Duration: "short",
 		Audio:    "default",
+		Speak:    "",
 	}
 	other := OtherType{HtmlJs: false}
 	system := SystemType{

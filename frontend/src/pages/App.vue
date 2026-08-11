@@ -15,8 +15,10 @@
 import { GoGetMessageList, GoAddMessage } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenMessage, GoOpenDashboard, GoOpenSetting } from "../../bindings/PushMe/internal/services/appservice";
 import { GoOpenBrowser } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoGetSettingNotice } from "../../bindings/PushMe/internal/services/settingservice";
+
 import { Events } from '@wailsio/runtime';
-import {isTextMsg, isDataMsg, isUrlMsg, WebCheckVersion, WebToast, WebNotification } from "../utils/common";
+import {isTextMsg, isDataMsg, isUrlMsg, WebCheckVersion, WebToast, WebNotification, WebSpeakMsg } from "../utils/common";
 import { initPlugin } from "../utils/plugin";
 import { initHost } from "../utils/host";
 import { markRaw } from 'vue';
@@ -31,10 +33,12 @@ export default {
             pageSize: 10,
             hasMore: false,
             plugin: null,
+            settingNotice: {},
         }
     },
     created() {
         this.getList();
+        this.getSettingNotice();
     },
     mounted() {
         this.init();
@@ -49,6 +53,9 @@ export default {
         });
         Events.On('plugin:change', () => {
             this.initPlugin();
+        });
+        Events.On('setting:change', () => {
+            this.getSettingNotice();
         });
 
         Events.On('notification:action', ({data}) => {
@@ -78,6 +85,7 @@ export default {
 
         Events.Off('notification:action');
         Events.Off('event:toast');
+        Events.Off('setting:change');
     },
     methods: {
         init() {
@@ -115,7 +123,8 @@ export default {
                     if(isDataMsg(newMsg)) {
                         Events.Emit('message:new', newMsg);
                     } else {
-                        WebNotification(newMsg);
+                        this.settingNotice.enable && WebNotification(newMsg);
+                        this.settingNotice.speak && WebSpeakMsg(newMsg, this.settingNotice.speak)
                         this.getList();
                     }
                 } else {
@@ -158,6 +167,9 @@ export default {
                 console.log('host:message', msg);
                 this.calcMessage(msg);
             });
+        },
+        async getSettingNotice() {
+            this.settingNotice = await GoGetSettingNotice();
         },
     }
 }
