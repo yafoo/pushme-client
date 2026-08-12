@@ -112,7 +112,7 @@ func Add(data *db.Msg) db.Msg {
 		db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
 		if res.ID > 0 {
 			// 便签新增不允许标题重复
-			if db.DataMap[data.Type] {
+			if data.Type == "note" {
 				return db.Msg{}
 			}
 			res.Title = data.Title
