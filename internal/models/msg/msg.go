@@ -112,9 +112,9 @@ func Add(data *db.Msg) db.Msg {
 		db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
 		if res.ID > 0 {
 			// 便签新增不允许标题重复
-			if data.Type == "note" {
-				return db.Msg{}
-			}
+			// if data.Type == "note" {
+			// 	return db.Msg{}
+			// }
 			res.Title = data.Title
 			res.Type = data.Type
 			res.Date = data.Date
@@ -158,13 +158,13 @@ func Del(id int) bool {
 }
 
 func Update(data *db.Msg) bool {
-	if data.Type == "note" {
-		res := db.Msg{}
-		db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
-		if res.ID > 0 && res.ID != data.ID {
-			return false
-		}
-	}
+	// if data.Type == "note" {
+	// 	res := db.Msg{}
+	// 	db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
+	// 	if res.ID > 0 && res.ID != data.ID {
+	// 		return false
+	// 	}
+	// }
 	result := db.Db.Save(data)
 	return result.Error == nil
 }
