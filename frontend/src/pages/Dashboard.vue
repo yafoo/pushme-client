@@ -2,7 +2,7 @@
 <div class="container">
     <div class="dashboard">
         <div class="dashboard-col" v-for="i in columns" :key="i" :ref="'col' + i">
-            <div class="card dashboard-item" v-for="message in this.columnList[i-1]" :key="message.id" @click="openMessage(message)">
+            <div class="card dashboard-item" :class="{'note-card': message.type === 'note'}" v-for="message in this.columnList[i-1]" :key="message.id" @click="openMessage(message)">
                 <div class="dashboard-title">{{message.title}}</div>
                 <div class="dashboard-date">{{message.date}}</div>
                 <div class="dashboard-content"><me-content :message="message"></me-content></div>

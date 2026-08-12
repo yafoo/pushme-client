@@ -205,3 +205,62 @@ ul>li {list-style: none;}
     background-color: var(--color-primary);
     color: #fff;
 }
+
+/* 便签样式 */
+.note-card {
+    background-color: #FFF8E1;
+    color: #4E342E;
+}
+.note-card .dashboard-title,
+.note-card .dashboard-date {
+    color: #4E342E;
+}
+.note-card .markdown {
+    color: #4E342E;
+}
+.note-card .markdown h1,
+.note-card .markdown h2,
+.note-card .markdown h3,
+.note-card .markdown h4,
+.note-card .markdown h5,
+.note-card .markdown h6 {
+    color: #4E342E;
+}
+.note-card .markdown table {
+    border-color: #D7CCC8;
+}
+.note-card .markdown th,
+.note-card .markdown td {
+    border-color: #D7CCC8;
+}
+
+/* 便签详情页 */
+.note-page {
+    min-height: 100vh;
+    background-color: #FFF8E1;
+    color: #4E342E;
+}
+.note-page .message-title {
+    color: #4E342E;
+}
+.note-page .message-date {
+    color: rgba(78, 52, 46, 0.5);
+}
+.note-page .message-content {
+    color: #4E342E;
+}
+.note-page .markdown h1,
+.note-page .markdown h2,
+.note-page .markdown h3,
+.note-page .markdown h4,
+.note-page .markdown h5,
+.note-page .markdown h6 {
+    color: #4E342E;
+}
+.note-page .markdown table {
+    border-color: #D7CCC8;
+}
+.note-page .markdown th,
+.note-page .markdown td {
+    border-color: #D7CCC8;
+}

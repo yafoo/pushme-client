@@ -1,5 +1,5 @@
 <template>
-<div class="container">
+<div class="container" :class="{'note-page': isNote}">
     <h1 class="message-title" :class="theme">{{title}}</h1>
     <div class="message-date">{{message.date}}</div>
     <div class="message-content"><me-content :message="message"></me-content></div>
