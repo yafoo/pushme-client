@@ -82,7 +82,7 @@ export default {
                             Events.Emit('note:close', this.id);
                         });
                     } else {
-                        WebToast('保存失败！');
+                        WebToast('保存失败！请检查标题是否重复！');
                     }
                 }).catch(err => {
                     WebToast('保存失败:' + err.message);
