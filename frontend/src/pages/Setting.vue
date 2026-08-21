@@ -90,7 +90,7 @@ export default {
                 {name: '接口服务', key: 'api', items: [
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
                     {label: '监听IP', key: 'ip', type: 'input', tips: '默认：为空，支持本机所有IP'},
-                    {label: '监听端口', key: 'port', type: 'input', tips: '默认：3200'},
+                    {label: '监听端口', key: 'port', type: 'input', tips: '默认：3010'},
                     {label: '验证push_key', key: 'verify_key', type: 'select', tips: '默认：关闭'},
                 ]},
                 {name: '自建服务', key: 'host', items: [

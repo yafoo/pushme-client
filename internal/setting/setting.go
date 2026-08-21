@@ -112,7 +112,7 @@ func GetSettingDefault() SettingType {
 	api := ApiType{
 		Enable:    true,
 		Ip:        "",
-		Port:      "3200",
+		Port:      "3010",
 		VerifyKey: false,
 	}
 	host := HostType{
