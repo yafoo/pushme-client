@@ -21,6 +21,7 @@ var (
 var apiStatus map[string]string = map[string]string{
 	"empty":   "title和content不能同时为空",
 	"disable": "接口服务已关闭",
+	"pushkey": "push_key 错误",
 	"success": "success",
 }
 
@@ -38,6 +39,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		Date:    r.Form.Get("date"),
 		Type:    r.Form.Get("type"),
 	}
+
+	pushKey := r.Form.Get("push_key")
 
 	jsonParams := &db.Msg{}
 	if r.Method == http.MethodPost && strings.Contains(r.Header.Get("Content-Type"), "application/json") {
@@ -60,8 +63,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		msg.Type = jsonParams.Type
 	}
 
+	// JSON中的push_key优先
+	if jsonParams.PushKey != "" {
+		pushKey = jsonParams.PushKey
+	}
+
 	if !setting.Setting.Api.Enable {
 		body = []byte(apiStatus["disable"])
+	} else if setting.Setting.Api.VerifyKey {
+		expectedKey := setting.Setting.Host.PushKey
+		if pushKey == "" || pushKey != expectedKey {
+			body = []byte(apiStatus["pushkey"])
+		} else if msg.Title == "" && msg.Content == "" {
+			body = []byte(apiStatus["empty"])
+		} else {
+			body = []byte(apiStatus["success"])
+			utils.EventEmit("message:api", msg)
+		}
 	} else if msg.Title == "" && msg.Content == "" {
 		body = []byte(apiStatus["empty"])
 	} else {

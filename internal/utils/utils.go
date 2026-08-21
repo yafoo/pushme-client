@@ -79,14 +79,21 @@ func RepostMessage(msg db.Msg) {
 		}
 	}()
 
+	repostData := map[string]interface{}{
+		"title":   msg.Title,
+		"content": msg.Content,
+		"date":    msg.Date,
+		"type":    msg.Type,
+	}
+
+	// 如果开启了转发push_key，则带上push_key
+	if setting.Setting.Repost.PushKey {
+		repostData["push_key"] = setting.Setting.Host.PushKey
+	}
+
 	repost := request.Request{
-		Url: setting.Setting.Repost.Url,
-		Data: map[string]interface{}{
-			"title":   msg.Title,
-			"content": msg.Content,
-			"date":    msg.Date,
-			"type":    msg.Type,
-		},
+		Url:  setting.Setting.Repost.Url,
+		Data: repostData,
 	}
 	switch setting.Setting.Repost.Method {
 	case "GET":
@@ -98,7 +105,7 @@ func RepostMessage(msg db.Msg) {
 	default:
 		repost.Post()
 	}
-	log.Println("RepostMessage")
+	log.Println("RepostMessage", repostData)
 }
 
 func CheckVersion() (result string) {

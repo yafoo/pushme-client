@@ -35,6 +35,9 @@
                             <template v-else-if="item.key == 'speak'">
                                 <option v-for="val in speakList" :key="val" :value="val">{{val || '关闭'}}</option>
                             </template>
+                            <template v-else-if="item.key == 'verify_key' || item.key == 'push_key'">
+                                <option v-for="val in enables" :key="val" :value="val">{{val ? '开启' : '关闭'}}</option>
+                            </template>
                         </select>
                         <div class="form-text" v-else-if="item.type == 'text'">
                             {{item.text}}
@@ -88,6 +91,7 @@ export default {
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
                     {label: '监听IP', key: 'ip', type: 'input', tips: '默认：为空，支持本机所有IP'},
                     {label: '监听端口', key: 'port', type: 'input', tips: '默认：3200'},
+                    {label: '验证push_key', key: 'verify_key', type: 'select', tips: '默认：关闭'},
                 ]},
                 {name: '自建服务', key: 'host', items: [
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：关闭'},
@@ -104,6 +108,7 @@ export default {
                     {label: '请求方式', key: 'method', type: 'select', tips: '默认：POST/JSON'},
                     {label: '关键词限制', key: 'limit', type: 'input', tips: 'title包含关键词，多个以|隔开'},
                     {label: '关键词排除', key: 'omit', type: 'input', tips: 'title不含关键词，多个以|隔开'},
+                    {label: '转发push_key', key: 'push_key', type: 'select', tips: '默认：关闭'},
                 ]},
                 {name: '桌面通知', key: 'notice', items: [
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},

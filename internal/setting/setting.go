@@ -19,9 +19,10 @@ type SettingType struct {
 }
 
 type ApiType struct {
-	Enable bool   `json:"enable"`
-	Ip     string `json:"ip"`
-	Port   string `json:"port"`
+	Enable    bool   `json:"enable"`
+	Ip        string `json:"ip"`
+	Port      string `json:"port"`
+	VerifyKey bool   `json:"verify_key"`
 }
 
 type HostType struct {
@@ -34,11 +35,12 @@ type HostType struct {
 }
 
 type RepostType struct {
-	Enable bool   `json:"enable"`
-	Url    string `json:"url"`
-	Method string `json:"method"`
-	Limit  string `json:"limit"`
-	Omit   string `json:"omit"`
+	Enable  bool   `json:"enable"`
+	Url     string `json:"url"`
+	Method  string `json:"method"`
+	Limit   string `json:"limit"`
+	Omit    string `json:"omit"`
+	PushKey bool   `json:"push_key"`
 }
 
 type NoticeType struct {
@@ -108,9 +110,10 @@ func SaveSetting(setting SettingType) {
 
 func GetSettingDefault() SettingType {
 	api := ApiType{
-		Enable: true,
-		Ip:     "",
-		Port:   "3200",
+		Enable:    true,
+		Ip:        "",
+		Port:      "3200",
+		VerifyKey: false,
 	}
 	host := HostType{
 		Enable:     false,
@@ -121,11 +124,12 @@ func GetSettingDefault() SettingType {
 		PushKey:    "",
 	}
 	repost := RepostType{
-		Enable: false,
-		Url:    "",
-		Method: "POST/JSON",
-		Limit:  "",
-		Omit:   "",
+		Enable:  false,
+		Url:     "",
+		Method:  "POST/JSON",
+		Limit:   "",
+		Omit:    "",
+		PushKey: false,
 	}
 	notice := NoticeType{
 		Enable:   true,

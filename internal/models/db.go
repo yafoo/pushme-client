@@ -34,6 +34,7 @@ type Msg struct {
 	Content string `json:"content"`
 	Date    string `json:"date" gorm:"type:varchar(255);default:"`
 	Type    string `json:"type" gorm:"type:varchar(255);default:text"`
+	PushKey string `json:"push_key" gorm:"-"`
 }
 
 func (msg *Msg) IsTextMsg() bool {
