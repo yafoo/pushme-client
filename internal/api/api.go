@@ -6,6 +6,7 @@ import (
 	"PushMe/internal/utils"
 	"context"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -28,45 +29,70 @@ var apiStatus map[string]string = map[string]string{
 func handler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	if err := r.ParseForm(); err != nil {
-		log.Println(err)
+	var msg = db.Msg{}
+	var pushKey string
+
+	contentType := r.Header.Get("Content-Type")
+	isJSON := r.Method == http.MethodPost && strings.Contains(contentType, "application/json")
+
+	if isJSON {
+		// JSON 请求：一次性读取 body
+		bodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			log.Printf("read body error: %v", err)
+			w.Write([]byte("read body error"))
+			return
+		}
+		jsonParams := &db.Msg{}
+		if err := json.Unmarshal(bodyBytes, jsonParams); err != nil {
+			log.Printf("JSON decode error: %v", err)
+		}
+		msg.Title = jsonParams.Title
+		msg.Content = jsonParams.Content
+		msg.Date = jsonParams.Date
+		msg.Type = jsonParams.Type
+		pushKey = jsonParams.PushKey
+	} else if r.Method == http.MethodPost && strings.Contains(contentType, "multipart/form-data") {
+		// multipart/form-data 请求
+		// 注意：Go 1.25 中 r.ParseForm() 无法正确填充 PostForm，必须显式调用 ParseMultipartForm
+		if err := r.ParseMultipartForm(32 << 20); err != nil {
+			log.Printf("parse multipart form error: %v", err)
+		}
+		msg.Title = r.PostForm.Get("title")
+		msg.Content = r.PostForm.Get("content")
+		msg.Date = r.PostForm.Get("date")
+		msg.Type = r.PostForm.Get("type")
+		pushKey = r.PostForm.Get("push_key")
+	} else if r.Method == http.MethodPost {
+		// urlencoded 表单请求
+		if err := r.ParseForm(); err != nil {
+			log.Printf("parse form error: %v", err)
+		}
+		msg.Title = r.PostForm.Get("title")
+		msg.Content = r.PostForm.Get("content")
+		msg.Date = r.PostForm.Get("date")
+		msg.Type = r.PostForm.Get("type")
+		pushKey = r.PostForm.Get("push_key")
+	}
+
+	// URL 查询参数作为兜底（POST body 参数优先级更高）
+	if msg.Title == "" {
+		msg.Title = r.URL.Query().Get("title")
+	}
+	if msg.Content == "" {
+		msg.Content = r.URL.Query().Get("content")
+	}
+	if msg.Date == "" {
+		msg.Date = r.URL.Query().Get("date")
+	}
+	if msg.Type == "" {
+		msg.Type = r.URL.Query().Get("type")
+	}
+	if pushKey == "" {
+		pushKey = r.URL.Query().Get("push_key")
 	}
 
 	var body []byte
-	var msg = db.Msg{
-		Title:   r.Form.Get("title"),
-		Content: r.Form.Get("content"),
-		Date:    r.Form.Get("date"),
-		Type:    r.Form.Get("type"),
-	}
-
-	pushKey := r.Form.Get("push_key")
-
-	jsonParams := &db.Msg{}
-	if r.Method == http.MethodPost && strings.Contains(r.Header.Get("Content-Type"), "application/json") {
-		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(jsonParams); err != nil {
-			log.Printf("JSON decode error: %v", err)
-		}
-	}
-
-	if jsonParams.Title != "" {
-		msg.Title = jsonParams.Title
-	}
-	if jsonParams.Content != "" {
-		msg.Content = jsonParams.Content
-	}
-	if jsonParams.Date != "" {
-		msg.Date = jsonParams.Date
-	}
-	if jsonParams.Type != "" {
-		msg.Type = jsonParams.Type
-	}
-
-	// JSON中的push_key优先
-	if jsonParams.PushKey != "" {
-		pushKey = jsonParams.PushKey
-	}
 
 	if !setting.Setting.Api.Enable {
 		body = []byte(apiStatus["disable"])
