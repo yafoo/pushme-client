@@ -4,6 +4,7 @@
 
 <script>
 import { GoGetHtmlJs } from "../../bindings/PushMe/internal/services/settingservice";
+import { proxyImages } from "../utils/common";
 
 export default {
     props: {
@@ -44,6 +45,7 @@ export default {
             if(!(await this.getHtmlJs())) {
                 content = await this.getDOMPurify().sanitize(this.content);
             }
+            content = await proxyImages(content);
             if(~this.content.indexOf('<body') && ~this.content.indexOf('</body>')) {
                 content = `<body>${content}</body>`;;
             }

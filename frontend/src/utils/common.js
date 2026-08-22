@@ -1,4 +1,4 @@
-import { GoNotification, GoCheckVersion } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoNotification, GoCheckVersion, GoProxyImage } from "../../bindings/PushMe/internal/services/utilsservice";
 import { calcTitleInfo } from "./message";
 
 export const query = () => new URLSearchParams(window.location.search)
@@ -151,6 +151,38 @@ export function getShortDate(input) {
 
 export function removeStyleScript(html) {
     return html.replace(/<(style|script)[^>]*>[\s\S]*?<\/\1>|<\s*(style|script)[^>]*\/>/gi, '');
+}
+
+// 图片代理：将 HTML 中的图片 URL 替换为 base64 数据
+export async function proxyImages(html) {
+    if (!html) return html;
+    
+    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    const matches = [...html.matchAll(imgRegex)];
+    
+    if (matches.length === 0) return html;
+    
+    let result = html;
+    const promises = matches.map(async (match) => {
+        const fullTag = match[0];
+        const imgUrl = match[1];
+        
+        // 跳过已经是 data: URL 的图片
+        if (imgUrl.startsWith('data:')) return;
+        
+        try {
+            const base64 = await GoProxyImage(imgUrl);
+            if (base64) {
+                const newTag = fullTag.replace(imgUrl, base64);
+                result = result.replace(fullTag, newTag);
+            }
+        } catch (err) {
+            console.warn('图片代理失败:', imgUrl, err);
+        }
+    });
+    
+    await Promise.all(promises);
+    return result;
 }
 
 export function WebCheckVersion(tips = false) {

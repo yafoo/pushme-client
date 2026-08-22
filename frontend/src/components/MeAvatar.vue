@@ -1,6 +1,6 @@
 <template>
     <div class="avatar" :style="avatarStyle">
-        <img v-if="isImageAvatar" :src="face" class="avatar__image" :style="imageStyle" />
+        <img v-if="isImageAvatar" :src="proxyFace || face" class="avatar__image" :style="imageStyle" />
 
         <div v-else class="avatar__text">
             <div :style="textStyle">{{ displayText }}</div>
@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import { GoProxyImage } from "../../bindings/PushMe/internal/services/utilsservice";
+
 export default {
     name: 'Avatar',
     props: {
@@ -28,6 +30,28 @@ export default {
             type: [Number, String],
             default: null
         },
+    },
+    data() {
+        return {
+            proxyFace: ''
+        }
+    },
+    watch: {
+        face: {
+            immediate: true,
+            handler(newFace) {
+                this.proxyFace = '';
+                if (newFace && newFace.startsWith('http')) {
+                    GoProxyImage(newFace).then(base64 => {
+                        if (base64) {
+                            this.proxyFace = base64;
+                        }
+                    }).catch(err => {
+                        console.warn('头像代理失败:', err);
+                    });
+                }
+            }
+        }
     },
     computed: {
         isImageAvatar() {

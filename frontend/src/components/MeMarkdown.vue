@@ -4,6 +4,7 @@
 
 <script>
 import { getMd } from "../utils/md";
+import { proxyImages } from "../utils/common";
 import "../../public/markdown.css";
 
 export default {
@@ -31,7 +32,9 @@ export default {
             if(!this.content) {
                 return this.htmlContent = this.content;
             }
-            this.htmlContent = (await this.getDOMPurify()).sanitize(getMd().parse(this.content));
+            let html = getMd().parse(this.content);
+            html = await proxyImages(html);
+            this.htmlContent = (await this.getDOMPurify()).sanitize(html);
         },
         async getDOMPurify() {
             if(!this.purify) {
