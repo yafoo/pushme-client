@@ -91,7 +91,7 @@ PushMeClient 独有功能，支持动态图表消息展示：
 | 桌面框架 | Wails v3 (alpha.90) |
 | 前端框架 | Vue.js 3 (Global Build) |
 | 图表库 | ECharts 5 |
-| Markdown 解析 | markdown-it |
+| Markdown 解析 | marked |
 | 数据库 | SQLite + GORM |
 | 系统交互 | go-ole (Windows COM)、wails内置通知 |
 | 安全加固 | DOMPurify (XSS 防护) |

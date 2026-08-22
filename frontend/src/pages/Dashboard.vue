@@ -97,12 +97,6 @@ export default {
                 this.getList();
             }
         },
-        renderMark(content) {
-            if(!this.md) {
-                this.md = markdownit({html: true, linkify: false});
-            }
-            return this.md.render(content);
-        },
         resize() {
             const newColumns = Math.round(window.innerWidth / 150);
             if(newColumns != this.columns) {

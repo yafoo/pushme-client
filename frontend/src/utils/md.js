@@ -1,9 +1,10 @@
-import markdownit from 'markdown-it'
-let md = null
+import { marked } from 'marked'
+
+marked.use({
+    breaks: false,
+    gfm: true
+})
 
 export function getMd() {
-    if(!md) {
-        md = markdownit({html: true, linkify: false})
-    }
-    return md
+    return marked
 }

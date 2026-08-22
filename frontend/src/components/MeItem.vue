@@ -71,7 +71,7 @@ export default {
                 const { getMd } = await import('../utils/md');
                 this.md = getMd();
             }
-            this.content = this.md.renderInline(content).replace(/<[^>]+>|&[^>]+;/g, '').replace(/[#*]+\s/g, '');
+            this.content = this.md.parseInline(content).replace(/<[^>]+>|&[^>]+;/g, '').replace(/[#*]+\s/g, '');
         },
     }
 }

@@ -31,7 +31,7 @@ export default {
             if(!this.content) {
                 return this.htmlContent = this.content;
             }
-            this.htmlContent = (await this.getDOMPurify()).sanitize(getMd().render(this.content));
+            this.htmlContent = (await this.getDOMPurify()).sanitize(getMd().parse(this.content));
         },
         async getDOMPurify() {
             if(!this.purify) {
