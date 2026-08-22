@@ -55,6 +55,9 @@
                 <div class="section-tips" v-if="menu.key == 'other'">
                     <div class="form-label">消息总数：<span class="form-text">{{msgCount}}</span> <div class="button form-button" @click="clearMessage">清空</div></div>
                 </div>
+                <div class="section-tips" v-if="menu.key == 'system'">
+                    <div class="form-label">配置目录：<div class="button form-button" @click="openUserDir">打开</div></div>
+                </div>
                 <div v-if="menu.key == 'about'">
                     <div class="form-label">版本：<span class="form-text">{{version}}</span> <div class="button form-button" @click="checkVersion(true)">检查更新</div></div>
                     <div class="form-label">官网：<span class="form-link" @click="openUrl('https://push.i-i.me/')">https://push.i-i.me/</span></div>
@@ -73,7 +76,7 @@
 </template>
 
 <script>
-import { GoGetIps, GoGetVersion, GoRestart, GoOpenBrowser } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoGetIps, GoGetVersion, GoRestart, GoOpenBrowser, GoOpenUserDir } from "../../bindings/PushMe/internal/services/utilsservice";
 import { GoGetSetting, GoSaveSetting, GoGetSettingDefault } from "../../bindings/PushMe/internal/services/settingservice";
 import { GoClearMessage, GoGetMessageCount } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenPlugin } from "../../bindings/PushMe/internal/services/appservice";
@@ -264,6 +267,13 @@ export default {
             GoOpenBrowser(url).then(res => {
                 if(!res) {
                     WebToast('打开链接失败', 2000);
+                }
+            });
+        },
+        openUserDir() {
+            GoOpenUserDir().then(res => {
+                if(!res) {
+                    WebToast('打开目录失败', 2000);
                 }
             });
         },

@@ -85,6 +85,11 @@ func (u *UtilsService) GoOpenBrowser(url string) bool {
 	return err == nil
 }
 
+func (u *UtilsService) GoOpenUserDir() bool {
+	err := utils.OpenBrowser(constant.RootDir)
+	return err == nil
+}
+
 func (u *UtilsService) GoRestart() {
 	utils.Restart()
 }
