@@ -168,8 +168,44 @@ export default {
     color: #555;
     line-height: 1.2;
 }
-.dashboard .markdown>*:first-child {
-    margin-top: 5px !important;
+.dashboard .markdown>* {
+    margin: 0.5em 0 !important;
+}
+.dashboard .markdown>*:last-child {
+    margin-bottom: 5px !important;
+}
+.dashboard .markdown>table:first-child {
+    margin-top: 0.5em !important;
+}
+.dashboard .markdown h1, .dashboard .markdown h2 {
+    font-size: 1.1em;
+    padding-bottom: 0.2em;
+}
+.dashboard .markdown h3, .dashboard .markdown h4 {
+    font-size: 1em;
+}
+.dashboard .markdown blockquote {
+    padding: 0.4em 0.6em;
+    border-left-width: 3px;
+}
+.dashboard .markdown pre {
+    padding: 0.5em 0.6em;
+    font-size: 11px;
+    max-height: 15em;
+}
+.dashboard .markdown code {
+    font-size: 0.9em;
+}
+.dashboard .markdown table th, .dashboard .markdown table td {
+    padding: 0.3em 0.4em;
+    font-size: 13px;
+}
+.dashboard .markdown li {
+    margin: 0.3em 0 0.3em 16px;
+}
+.dashboard .markdown img {
+    max-height: 150px;
+    object-fit: contain;
 }
 .dashboard-content canvas {
     margin-top: 5px !important;

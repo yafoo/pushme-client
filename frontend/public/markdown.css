@@ -69,6 +69,9 @@
     margin: 0.6em 0 0.6em 20px;
     list-style: inherit;
 }
+.markdown li input[type=checkbox] {
+    vertical-align: -2px;
+}
 .markdown p {
     line-height: 1.8;
 }
