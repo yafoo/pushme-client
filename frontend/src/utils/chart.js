@@ -176,11 +176,29 @@ export default {
             if(value != 0) {
                 ctx.save();
                 const x_text = i * x_width + x_width / 2;
-                const y_text = value >= 0 ? y - 1 * dpr : y + 1 * dpr;
+                let y_text;
+                let text_baseline;
+                if(value >= 0) {
+                    y_text = y - 1 * dpr;
+                    text_baseline = 'bottom';
+                    // 边缘钳制：防止文本超出画布顶部
+                    if(y_text < font_size) {
+                        y_text = font_size;
+                    }
+                } else {
+                    y_text = y + 1 * dpr;
+                    text_baseline = 'top';
+                    // 边缘钳制：防止文本超出画布底部
+                    if(y_text > height - font_size) {
+                        y_text = height - font_size;
+                    }
+                }
                 ctx.translate(x_text, y_text);
                 ctx.font = font_size + "px Arial";
                 ctx.fillStyle = "#333";
-                ctx.textBaseline = value >= 0 ? 'bottom' : 'top';
+                ctx.textBaseline = text_baseline;
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 2 * dpr;
                 ctx.strokeText(value, 0, 0);
                 ctx.fillText(value, 0, 0);
                 ctx.restore();
@@ -223,6 +241,12 @@ export default {
                 const right_value = i == datas.length - 1 ? value : datas[i + 1];
                 const middle_value = (left_value + right_value) / 2;
                 let y_text = value < middle_value ? y + font_size * 0.8 : y - font_size * 0.8;
+                // 边缘钳制：防止文本超出画布边界
+                if(y_text < font_size / 2) {
+                    y_text = font_size / 2;
+                } else if(y_text > height - font_size / 2) {
+                    y_text = height - font_size / 2;
+                }
                 ctx.translate(x_text, y_text);
                 ctx.font = font_size + "px Arial";
                 ctx.fillStyle = "#333";
