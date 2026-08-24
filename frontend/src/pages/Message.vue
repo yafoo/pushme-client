@@ -144,6 +144,7 @@ export default {
     font-size: 14px;
     color: #555;
     line-height: 1.5;
+    padding-bottom: 8px;
 }
 
 .button-edit {
