@@ -5,6 +5,7 @@ import (
 	"PushMe/internal/api"
 	"PushMe/internal/services"
 	"PushMe/internal/setting"
+	"PushMe/internal/utils"
 	"embed"
 	_ "embed"
 	"log"
@@ -103,6 +104,9 @@ func main() {
 		}
 		windowShowing = !windowShowing
 	})
+
+	// 迁移存量用户的开机启动设置
+	utils.MigrateAutostart()
 
 	// Run the application. This blocks until the application has been exited.
 	err := app.Run()

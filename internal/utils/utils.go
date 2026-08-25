@@ -197,12 +197,12 @@ func IsWindows() bool {
 	return runtime.GOOS == "windows"
 }
 
-// wails3暂未实现，本程序仅支持windows
+// 设置开机启动（使用 wails3 内置 API）
 func Autostart(status bool) {
 	if status {
-		MakeShortcut()
+		EnableAutostart()
 	} else {
-		RemoveShortcut()
+		DisableAutostart()
 	}
 }
 
