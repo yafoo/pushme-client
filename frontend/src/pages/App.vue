@@ -9,13 +9,27 @@
     <div class="button-cirle button-setting" @click="openSetting"><img class="icon" src="/icon/setting.svg"></div>
     <div class="button-cirle button-dashboard" @click="openDashboard"><img class="icon" src="/icon/dashboard.svg"></div>
 </div>
+<div class="status-bar">
+    <div class="status-item">
+        <span class="status-dot" :class="{'status-on': apiStatus}"></span>
+        <span class="status-text">接口</span>
+    </div>
+    <div class="status-item">
+        <span class="status-dot" :class="{'status-on': hostStatus.enable}"></span>
+        <span class="status-text">自建</span>
+    </div>
+    <div class="status-item" v-if="hostStatus.enable">
+        <span class="status-dot" :class="{'status-connected': hostStatus.connected}"></span>
+        <span class="status-text">{{ hostStatus.connected ? '已连接' : '连接..' }}</span>
+    </div>
+</div>
 </template>
 
 <script>
 import { GoGetMessageList, GoAddMessage } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenMessage, GoOpenDashboard, GoOpenSetting } from "../../bindings/PushMe/internal/services/appservice";
 import { GoOpenBrowser } from "../../bindings/PushMe/internal/services/utilsservice";
-import { GoGetSettingNotice } from "../../bindings/PushMe/internal/services/settingservice";
+import { GoGetSettingNotice, GoGetSetting } from "../../bindings/PushMe/internal/services/settingservice";
 
 import { Events } from '@wailsio/runtime';
 import {isTextMsg, isDataMsg, isUrlMsg, WebCheckVersion, WebToast, WebNotification, WebSpeakMsg } from "../utils/common";
@@ -34,11 +48,14 @@ export default {
             hasMore: false,
             plugin: null,
             settingNotice: {},
+            apiStatus: false,
+            hostStatus: { enable: false, connected: false },
         }
     },
     created() {
         this.getList();
         this.getSettingNotice();
+        this.getApiStatus();
     },
     mounted() {
         this.init();
@@ -56,6 +73,7 @@ export default {
         });
         Events.On('setting:change', () => {
             this.getSettingNotice();
+            this.getApiStatus();
         });
 
         Events.On('notification:action', ({data}) => {
@@ -166,10 +184,20 @@ export default {
             initHost(msg => {
                 console.log('host:message', msg);
                 this.calcMessage(msg);
+            }, status => {
+                this.hostStatus = status;
             });
         },
         async getSettingNotice() {
             this.settingNotice = await GoGetSettingNotice();
+        },
+        async getApiStatus() {
+            try {
+                const setting = await GoGetSetting();
+                this.apiStatus = setting.api.enable;
+            } catch (err) {
+                console.error('获取接口状态失败:', err);
+            }
         },
     }
 }
@@ -224,5 +252,46 @@ export default {
 .float-tools:hover .button-refresh:hover,
 .float-tools:hover .button-setting:hover {
     opacity: 0.8;
+}
+
+.status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 14px;
+    background-color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-size: 10px;
+    color: #666;
+    z-index: 1;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #ccc;
+}
+
+.status-dot.status-on {
+    background-color: #52c41a;
+}
+
+.status-dot.status-connected {
+    background-color: #1890ff;
+}
+
+.status-text {
+    line-height: 1;
 }
 </style>

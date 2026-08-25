@@ -2,8 +2,11 @@ import { GoGetHost } from "../../bindings/PushMe/internal/services/settingservic
 import { WebToast } from "../utils/common";
 
 let client = null;
+let hostStatus = { enable: false, connected: false };
 
-export const initHost = async(onMessage) => {
+export const getHostStatus = () => hostStatus;
+
+export const initHost = async(onMessage, onStatusChange) => {
     let host = null;
     try {
         const res = await GoGetHost();
@@ -14,13 +17,21 @@ export const initHost = async(onMessage) => {
     }
 
     if(!host) {
+        hostStatus = { enable: false, connected: false };
+        onStatusChange && onStatusChange(hostStatus);
         return;
     }
 
+    hostStatus.enable = host.enable;
+
     if(!host.enable) {
+        hostStatus.connected = false;
+        onStatusChange && onStatusChange(hostStatus);
         return console.log('自建服务未开启');
     }
     if(!host.ip || !host.port || !host.push_key) {
+        hostStatus.connected = false;
+        onStatusChange && onStatusChange(hostStatus);
         return WebToast('自建服务参数配置不全', {...host});
     }
 
@@ -57,10 +68,22 @@ export const initHost = async(onMessage) => {
 
     client.on('connect', res => {
         console.log('Host Connected');
+        hostStatus.connected = true;
+        onStatusChange && onStatusChange(hostStatus);
         client.subscribe(sub_topic, {qos: host.offline_msg ? 1 : 0});
     });
     client.on('disconnect', res => {
         console.log('Host Disconnected', res);
+        hostStatus.connected = false;
+        onStatusChange && onStatusChange(hostStatus);
+    });
+    client.on('close', res => {
+        hostStatus.connected = false;
+        onStatusChange && onStatusChange(hostStatus);
+    });
+    client.on('error', res => {
+        hostStatus.connected = false;
+        onStatusChange && onStatusChange(hostStatus);
     });
 
     client.on('message', (topic, payload) => {
