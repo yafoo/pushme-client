@@ -42,6 +42,30 @@ func RemoveShortcut() bool {
 	return true
 }
 
+// 卸载应用（删除所有快捷方式）
+func Uninstall() (bool, error) {
+	if !IsWindows() {
+		return false, nil
+	}
+
+	// 删除启动目录快捷方式
+	err := os.Remove(linkPath)
+	if err != nil && !os.IsNotExist(err) {
+		fmt.Println("删除启动快捷方式失败:", err)
+		return false, err
+	}
+
+	// 删除开始菜单快捷方式
+	startMenuPath := path.Join(constant.UserDir, constant.StartMenuLnk)
+	err = os.Remove(startMenuPath)
+	if err != nil && !os.IsNotExist(err) {
+		fmt.Println("删除开始菜单快捷方式失败:", err)
+		return false, err
+	}
+
+	return true, nil
+}
+
 func createShortcut(source string, target string) error {
 	var err error
 	err = ole.CoInitializeEx(0, ole.COINIT_APARTMENTTHREADED|ole.COINIT_SPEED_OVER_MEMORY)

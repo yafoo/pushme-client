@@ -94,6 +94,14 @@ func (u *UtilsService) GoRestart() {
 	utils.Restart()
 }
 
+func (u *UtilsService) GoUninstall() (bool, string) {
+	success, err := utils.Uninstall()
+	if err != nil {
+		return false, err.Error()
+	}
+	return success, ""
+}
+
 func (u *UtilsService) GoProxyImage(imageUrl string) string {
 	client := &http.Client{
 		Timeout: 10 * time.Second,

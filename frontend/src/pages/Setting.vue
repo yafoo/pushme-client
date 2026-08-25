@@ -56,12 +56,13 @@
                     <div class="form-label">消息总数：<span class="form-text">{{msgCount}}</span> <div class="button form-button" @click="clearMessage">清空</div></div>
                 </div>
                 <div class="section-tips" v-if="menu.key == 'system'">
-                    <div class="form-label">配置目录：<div class="button form-button" @click="openUserDir">打开</div></div>
+                    <div class="form-label single">配置目录：<div class="button form-button" @click="openUserDir">打开</div></div>
+                    <div class="form-label single">卸载应用：<div class="button form-button danger" @click="uninstallApp">卸载</div></div>
                 </div>
                 <div v-if="menu.key == 'about'">
-                    <div class="form-label">版本：<span class="form-text">{{version}}</span> <div class="button form-button" @click="checkVersion(true)">检查更新</div></div>
-                    <div class="form-label">官网：<span class="form-link" @click="openUrl('https://push.i-i.me/')">https://push.i-i.me/</span></div>
-                    <div class="form-label">仓库：<span class="form-link" @click="openUrl('https://github.com/yafoo/pushme-client')">GitHub</span> | <span class="form-link" @click="openUrl('https://gitee.com/yafu/pushme-client')">Gitee</span></div>
+                    <div class="form-label single">版本：<span class="form-text">{{version}}</span> <div class="button form-button" @click="checkVersion(true)">检查更新</div></div>
+                    <div class="form-label single">官网：<span class="form-link" @click="openUrl('https://push.i-i.me/')">https://push.i-i.me/</span></div>
+                    <div class="form-label single">仓库：<span class="form-link" @click="openUrl('https://github.com/yafoo/pushme-client')">GitHub</span> | <span class="form-link" @click="openUrl('https://gitee.com/yafu/pushme-client')">Gitee</span></div>
                 </div>
             </div>
         </div>
@@ -76,7 +77,7 @@
 </template>
 
 <script>
-import { GoGetIps, GoGetVersion, GoRestart, GoOpenBrowser, GoOpenUserDir } from "../../bindings/PushMe/internal/services/utilsservice";
+import { GoGetIps, GoGetVersion, GoRestart, GoOpenBrowser, GoOpenUserDir, GoUninstall } from "../../bindings/PushMe/internal/services/utilsservice";
 import { GoGetSetting, GoSaveSetting, GoGetSettingDefault } from "../../bindings/PushMe/internal/services/settingservice";
 import { GoClearMessage, GoGetMessageCount } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenPlugin } from "../../bindings/PushMe/internal/services/appservice";
@@ -277,6 +278,20 @@ export default {
                 }
             });
         },
+        uninstallApp() {
+            WebConfirm('卸载将删除开机启动快捷方式和开始菜单快捷方式，确定要卸载吗？', '确认卸载', action => {
+                if(action != 'ok') {
+                    return;
+                }
+                GoUninstall().then(res => {
+                    if(res[0]) {
+                        WebToast('卸载成功！', 2000);
+                    } else {
+                        WebToast('卸载失败：' + res[1], 2000);
+                    }
+                });
+            });
+        },
         restart() {
             GoRestart();
         },
@@ -383,12 +398,12 @@ export default {
 #about {
     padding-top: 10px;
 }
-#about .form-label {
+.form-label.single {
     padding-bottom: 8px;
     border-bottom: 1px solid #eee;
     margin-bottom: 8px;
 }
-#about .form-link {
+.form-label.single .form-link {
     text-decoration: underline;
     cursor: pointer;
 }
@@ -400,5 +415,12 @@ export default {
     line-height: 12px;
     padding: 4px 5px;
     float: right;
+}
+.form-button.danger {
+    background-color: #ff4d4f;
+    color: white;
+}
+.form-button.danger:hover {
+    background-color: #ff7875;
 }
 </style>
