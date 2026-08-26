@@ -42,7 +42,7 @@ func main() {
 	// 'Mac' options tailor the application when running an macOS.
 	app := application.New(application.Options{
 		Name:        constant.AppName,
-		Description: "A demo of using raw HTML & CSS",
+		Description: constant.AppDescription,
 		Services: []application.Service{
 			application.NewService(services.Notifier),
 			application.NewService(&services.UtilsService{}),
