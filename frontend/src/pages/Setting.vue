@@ -57,6 +57,7 @@
                 </div>
                 <div class="section-tips" v-if="menu.key == 'system'">
                     <div class="form-label single">配置目录：<div class="button form-button" @click="openUserDir">打开</div></div>
+                    <div class="form-label single">重启应用：<div class="button form-button" @click="restart">重启</div></div>
                     <div class="form-label single">卸载应用：<div class="button form-button danger" @click="uninstallApp">卸载</div></div>
                 </div>
                 <div v-if="menu.key == 'about'">
@@ -72,7 +73,6 @@
 <div class="form-tools">
     <div class="button" @click="saveSetting">保存</div>
     <div class="button normal" @click="getDefault">默认值</div>
-    <div class="button secondary" v-if="isRestart" @click="restart">重启</div>
 </div>
 </template>
 
@@ -88,8 +88,6 @@ export default {
     data() {
         return {
             form: null,
-            setstr: null,
-            isRestart: false,
             formItem: [
                 {name: '接口服务', key: 'api', items: [
                     {label: '状态', key: 'enable', type: 'select', tips: '默认：开启'},
@@ -149,20 +147,6 @@ export default {
             return '';
         }
     },
-    watch: {
-        form: {
-            deep: true,
-            handler(val) {
-                if(val) {
-                    if(JSON.stringify(val) != this.setstr) {
-                        this.isRestart = true;
-                    } else {
-                        this.isRestart = false;
-                    }
-                }
-            }
-        }
-    },
     created() {
         this.getIps();
         this.getSetting();
@@ -176,7 +160,6 @@ export default {
         getSetting() {
             GoGetSetting().then(res => {
                 this.form = res;
-                this.setstr = JSON.stringify(res);
             });
         },
         getIps() {
@@ -232,7 +215,7 @@ export default {
             }
             GoSaveSetting(this.form).then(res => {
                 if (res === true) {
-                    WebToast('保存成功，重启后生效！');
+                    WebToast('保存成功！');
                 } else {
                     WebToast('保存失败！');
                 }

@@ -27,6 +27,9 @@ export const initHost = async(onMessage, onStatusChange) => {
     if(!host.enable) {
         hostStatus.connected = false;
         onStatusChange && onStatusChange(hostStatus);
+        // 关闭旧的 MQTT 连接
+        client && client.end();
+        client = null;
         return console.log('自建服务未开启');
     }
     if(!host.ip || !host.port || !host.push_key) {

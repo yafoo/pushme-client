@@ -74,6 +74,7 @@ export default {
         Events.On('setting:change', () => {
             this.getSettingNotice();
             this.getApiStatus();
+            this.initHost();
         });
 
         Events.On('notification:action', ({data}) => {
@@ -185,7 +186,7 @@ export default {
                 console.log('host:message', msg);
                 this.calcMessage(msg);
             }, status => {
-                this.hostStatus = status;
+                this.hostStatus = { ...status };
             });
         },
         async getSettingNotice() {
