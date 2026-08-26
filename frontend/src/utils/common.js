@@ -1,5 +1,4 @@
 import { GoNotification, GoCheckVersion, GoProxyImage } from "../../bindings/PushMe/internal/services/utilsservice";
-import { calcTitleInfo } from "./message";
 
 export const query = () => new URLSearchParams(window.location.search)
 
@@ -53,7 +52,7 @@ export function WebConfirm(content, title, callback) {
     dom_button.className = 'confirm-button';
     dom_button.innerHTML = buttons;
     dom_button.childNodes.forEach(btn => {
-        btn.onclick = function(){
+        btn.onclick = function() {
             dom.parentNode.removeChild(dom_bg);
             dom.parentNode.removeChild(dom);
             typeof callback == 'function' && callback(btn.dataset.action);
@@ -210,8 +209,8 @@ export function WebCheckVersion(tips = false) {
 
 export function WebNotification(message) {
     const msg = {...message};
-    const titleInfo = calcTitleInfo(msg.title);
-    msg.title = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[titleInfo.theme] + (titleInfo.user ? `[${titleInfo.user}]` : '') + titleInfo.title;
+    const themeIcon = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[msg.theme || ''];
+    msg.title = themeIcon + (msg.user ? `[${msg.user}]` : '') + msg.title;
     if(msg.type == 'html') {
         msg.content = removeStyleScript(msg.content);
     }
@@ -227,8 +226,7 @@ export function WebSpeakMsg(message, type) {
     let text = [];
     const msg = {...message};
     if(type.indexOf('title') > -1) {
-        const titleInfo = calcTitleInfo(msg.title);
-        text.push((titleInfo.user ? `[${titleInfo.user}]` : '') + titleInfo.title);
+        text.push((msg.user ? `[${msg.user}]` : '') + msg.title);
     }
     if(type.indexOf('content') > -1) {
         const content = msg.type == 'html' ? removeStyleScript(msg.content) : msg.content;

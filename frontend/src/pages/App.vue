@@ -4,11 +4,13 @@
     <me-item class="list-item" v-for="message in list" :key="message.id" @click="openMessage(message)" :message="message"></me-item>
     <div class="button" v-if="hasMore" style="margin: 15px 0;" @click="getList(page+1)">加载更多</div>
 </div>
+
 <div class="float-tools">
-    <div class="button-cirle button-refresh" @click="getList()"><img class="icon" src="/icon/refresh.svg"></div>
-    <div class="button-cirle button-setting" @click="openSetting"><img class="icon" src="/icon/setting.svg"></div>
-    <div class="button-cirle button-dashboard" @click="openDashboard"><img class="icon" src="/icon/dashboard.svg"></div>
+    <div class="button-cirle" @click="getList()"><img class="icon" src="/icon/refresh.svg"></div>
+    <div class="button-cirle" @click="openSetting"><img class="icon" src="/icon/setting.svg"></div>
+    <div class="button-cirle" @click="openDashboard"><img class="icon" src="/icon/dashboard.svg"></div>
 </div>
+
 <div class="status-bar">
     <div class="status-item">
         <span class="status-dot" :class="{'status-on': apiStatus}"></span>
@@ -26,8 +28,8 @@
 </template>
 
 <script>
-import { GoGetMessageList, GoAddMessage } from "../../bindings/PushMe/internal/services/messageservice";
-import { GoOpenMessage, GoOpenDashboard, GoOpenSetting } from "../../bindings/PushMe/internal/services/appservice";
+import { GoGetMessageListGrouped, GoAddMessage } from "../../bindings/PushMe/internal/services/messageservice";
+import { GoOpenMessage, GoOpenDashboard, GoOpenSetting, GoOpenUser } from "../../bindings/PushMe/internal/services/appservice";
 import { GoOpenBrowser } from "../../bindings/PushMe/internal/services/utilsservice";
 import { GoGetSettingNotice, GoGetSetting } from "../../bindings/PushMe/internal/services/settingservice";
 
@@ -115,7 +117,7 @@ export default {
         },
         getList(page = 1) {
             this.page = page;
-            GoGetMessageList(this.page, this.pageSize).then(list => {
+            GoGetMessageListGrouped(this.page, this.pageSize).then(list => {
                 this.hasMore = list.length >= this.pageSize;
 
                 if(this.page == 1) {
@@ -155,7 +157,9 @@ export default {
         },
         openMessage(msg) {
             if(window.getSelection().toString() === '') {
-                if(isUrlMsg(msg)) {
+                if(msg.user) {
+                    GoOpenUser(msg.user);
+                } else if(isUrlMsg(msg)) {
                     GoOpenBrowser(msg.content).then(res => {
                         if(!res) {
                             WebToast('打开链接失败', 2000);
@@ -231,28 +235,6 @@ export default {
 }
 .list-item {
     margin: 8px 0;
-}
-
-.button-dashboard {
-    position: relative;
-    bottom: 0;
-    right: 0;
-    z-index: 2;
-}
-.button-refresh,
-.button-setting {
-    margin-bottom: -42px;
-    opacity: 0;
-    transition: all 0.3s;
-}
-.float-tools:hover .button-refresh,
-.float-tools:hover .button-setting {
-    margin-bottom: 8px;
-    opacity: 1;
-}
-.float-tools:hover .button-refresh:hover,
-.float-tools:hover .button-setting:hover {
-    opacity: 0.8;
 }
 
 .status-bar {

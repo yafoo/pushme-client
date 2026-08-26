@@ -54,6 +54,24 @@ ul>li {list-style: none;}
     display: none;
     animation: fadein .5s;
 }
+.float-tools>*:last-child {
+    position: relative;
+    bottom: 0;
+    right: 0;
+    z-index: 3;
+}
+.float-tools>*:not(:last-child) {
+    margin-bottom: -42px;
+    opacity: 0;
+    transition: all 0.3s;
+}
+.float-tools:hover>*:not(:last-child) {
+    margin-bottom: 8px;
+    opacity: 1;
+}
+.float-tools:hover>*:not(:last-child):hover {
+    opacity: 0.8;
+}
 #app:hover .float-tools {
     display: block;
 }

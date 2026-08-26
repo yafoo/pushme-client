@@ -1,6 +1,6 @@
 <template>
 <div class="row">
-    <div class="face" v-if="user !== ''">
+    <div class="face" v-if="showFace && user !== ''" @click.stop="openUser">
         <me-avatar :user="user" :face="face"></me-avatar>
         <div class="face-user">{{user}}</div>
     </div>
@@ -14,7 +14,7 @@
 <script>
 import { markRaw } from 'vue'
 import { isMarkMsg, isHtmlMsg, removeStyleScript, getShortDate } from "../utils/common";
-import { calcTitleInfo } from "../utils/message";
+import { GoOpenUser } from "../../bindings/PushMe/internal/services/appservice";
 import MeAvatar from "./MeAvatar.vue";
 
 export default {
@@ -24,6 +24,10 @@ export default {
             type: Object,
             default: {}
         },
+        showFace: {
+            type: Boolean,
+            default: true
+        }
     },
     data() {
         return {
@@ -46,12 +50,17 @@ export default {
         }
     },
     methods: {
+        openUser() {
+            if(this.user) {
+                GoOpenUser(this.user);
+            }
+        },
         parseMsg() {
-            const titleInfo = calcTitleInfo(this.message.title);
-            this.themeClass = titleInfo.theme ? `theme ${titleInfo.theme}` : '';
-            this.user = titleInfo.user;
-            this.face = titleInfo.face;
-            this.title = titleInfo.title;
+            // 直接从 message 对象读取已解析的字段
+            this.themeClass = this.message.theme ? `theme ${this.message.theme}` : '';
+            this.user = this.message.user || '';
+            this.face = this.message.face || '';
+            this.title = this.message.title;
             this.date = getShortDate(this.message.date);
             this.renderContent();
         },
@@ -88,6 +97,7 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    cursor: pointer;
 }
 .face-user {
     height: 10px;

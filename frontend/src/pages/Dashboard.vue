@@ -245,10 +245,4 @@ export default {
     line-height: 1.2;
     text-align: center;
 }
-.float-tools {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    z-index: 100;
-}
 </style>

@@ -38,10 +38,20 @@ func (u *UtilsService) GoNotification(msg db.Msg) {
 		return
 	}
 	if authorized {
+		// XML 转义，避免 Windows 通知 XML 解析失败
+		escapeXml := func(s string) string {
+			s = strings.ReplaceAll(s, "&", "&amp;")
+			s = strings.ReplaceAll(s, "<", "&lt;")
+			s = strings.ReplaceAll(s, ">", "&gt;")
+			s = strings.ReplaceAll(s, "\"", "&quot;")
+			s = strings.ReplaceAll(s, "'", "&apos;")
+			return s
+		}
+
 		err := Notifier.SendNotification(notifications.NotificationOptions{
 			ID:    strconv.Itoa(int(msg.ID)),
-			Title: msg.Title,
-			Body:  msg.Content,
+			Title: escapeXml(msg.Title),
+			Body:  escapeXml(msg.Content),
 			Data: map[string]interface{}{
 				"id":   msg.ID,
 				"type": msg.Type,

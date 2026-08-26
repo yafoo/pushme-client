@@ -3,11 +3,62 @@ package msg
 import (
 	db "PushMe/internal/models"
 	"encoding/json"
+	"regexp"
 	"strconv"
 	"strings"
 )
 
 var typeKey = "type in (?)"
+
+// 标题解析正则
+var (
+	themePattern  = regexp.MustCompile(`^\[([iswfISWF])\]\s*(.*)`)
+	channelPattern = regexp.MustCompile(`\[~([^\]]+)\]`)
+	groupPattern  = regexp.MustCompile(`\[#([^!\]\n]+)(?:!([^\]\n]+))?\]`)
+)
+
+// TitleInfo 标题解析结果
+type TitleInfo struct {
+	Theme   string
+	Title   string
+	User    string
+	Face    string
+	Channel string
+}
+
+// CalcTitleInfo 从标题中提取主题、分组等信息
+func CalcTitleInfo(input string) TitleInfo {
+	info := TitleInfo{}
+	if strings.TrimSpace(input) == "" {
+		return info
+	}
+
+	title := strings.TrimSpace(input)
+
+	// 提取主题
+	if match := themePattern.FindStringSubmatch(title); len(match) > 0 {
+		info.Theme = strings.ToLower(match[1])
+		title = match[2]
+	}
+
+	// 提取频道
+	if match := channelPattern.FindStringSubmatch(title); len(match) > 0 {
+		info.Channel = strings.TrimSpace(match[1])
+		title = strings.Replace(title, match[0], "", 1)
+	}
+
+	// 提取分组
+	if match := groupPattern.FindStringSubmatch(title); len(match) > 0 {
+		info.User = strings.TrimSpace(match[1])
+		if len(match) > 2 {
+			info.Face = strings.TrimSpace(match[2])
+		}
+		title = strings.Replace(title, match[0], "", 1)
+	}
+
+	info.Title = strings.TrimSpace(title)
+	return info
+}
 
 type ChartData struct {
 	Type  string    `json:"type"`
@@ -107,6 +158,13 @@ func mergeChartData(first, second ChartData) ChartData {
 }
 
 func Add(data *db.Msg) db.Msg {
+	// 从标题中解析分组和主题信息
+	titleInfo := CalcTitleInfo(data.Title)
+	data.Theme = titleInfo.Theme
+	data.User = titleInfo.User
+	data.Face = titleInfo.Face
+	data.Title = titleInfo.Title // 保存干净的标题
+
 	if data.IsDataMsg() {
 		res := db.Msg{}
 		db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
@@ -158,13 +216,6 @@ func Del(id int) bool {
 }
 
 func Update(data *db.Msg) bool {
-	// if data.Type == "note" {
-	// 	res := db.Msg{}
-	// 	db.Db.Where("title like ?", data.Title).Order("id desc").First(&res)
-	// 	if res.ID > 0 && res.ID != data.ID {
-	// 		return false
-	// 	}
-	// }
 	result := db.Db.Save(data)
 	return result.Error == nil
 }
@@ -193,5 +244,85 @@ func CountText() int {
 	if err != nil {
 		return 0
 	}
+	return int(count)
+}
+
+// MsgListByUser 按用户/分组查询消息列表
+func MsgListByUser(user string, page int, pageSize int) []db.Msg {
+	offset := (page - 1) * pageSize
+	var list []db.Msg
+	db.Db.Where(typeKey, *db.TextTypes).Where("user = ?", user).Offset(offset).Limit(pageSize).Order("id desc").Find(&list)
+	return list
+}
+
+// CountByUser 统计某用户的消息数量
+func CountByUser(user string) int {
+	var count int64
+	db.Db.Model(&db.Msg{}).Where(typeKey, *db.TextTypes).Where("user = ?", user).Count(&count)
+	return int(count)
+}
+
+// DelByUser 删除某用户的所有消息
+func DelByUser(user string) bool {
+	result := db.Db.Where("user = ?", user).Delete(&db.Msg{})
+	return result.Error == nil
+}
+
+// UserList 获取所有有分组的消息的用户列表（含最近消息信息和未读数量）
+func UserList() []map[string]interface{} {
+	var results []map[string]interface{}
+	db.Db.Model(&db.Msg{}).
+		Select(`user, face, count(*) as count, max(id) as last_id`).
+		Where(typeKey, *db.TextTypes).
+		Where("user != ''").
+		Group("user").
+		Order("last_id desc").
+		Find(&results)
+	return results
+}
+
+// MsgListGrouped 首页分组列表：每个 user 只显示最新一条 + 所有无 user 的消息，按 id 降序
+func MsgListGrouped(page int, pageSize int) []db.Msg {
+	offset := (page - 1) * pageSize
+	var list []db.Msg
+	tableName := db.Msg{}.TableName()
+
+	// 用子查询取每个 user 的最新消息 id，再 UNION 无 user 的消息
+	db.Db.Raw(`
+		SELECT * FROM `+"`"+tableName+"`"+`
+		WHERE id IN (
+			SELECT MAX(id) FROM `+"`"+tableName+"`"+`
+			WHERE user != '' AND user IS NOT NULL AND type IN (?)
+			GROUP BY user
+		)
+		UNION ALL
+		SELECT * FROM `+"`"+tableName+"`"+`
+		WHERE (user = '' OR user IS NULL) AND type IN (?)
+		ORDER BY id DESC
+		LIMIT ? OFFSET ?
+	`, *db.TextTypes, *db.TextTypes, pageSize, offset).Scan(&list)
+
+	return list
+}
+
+// CountGrouped 分组后的总条数（用于判断是否有更多）
+func CountGrouped() int {
+	var count int64
+
+	// 每个 user 算 1 条 + 无 user 的消息数
+	var userCount int64
+	db.Db.Model(&db.Msg{}).
+		Where(typeKey, *db.TextTypes).
+		Where("user != '' AND user IS NOT NULL").
+		Distinct("user").
+		Count(&userCount)
+
+	var noUserCount int64
+	db.Db.Model(&db.Msg{}).
+		Where(typeKey, *db.TextTypes).
+		Where("user = '' OR user IS NULL").
+		Count(&noUserCount)
+
+	count = userCount + noUserCount
 	return int(count)
 }

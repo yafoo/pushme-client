@@ -113,6 +113,21 @@ func (a *AppService) GoOpenSetting(id int) {
 	a.OpenPage("/index.html?page=Setting", "系统设置")
 }
 
+func (a *AppService) GoOpenUser(user string) {
+	var pageKey = pageType.Message + "user_" + user
+	// 如果已打开同用户页面，聚焦到已有窗口
+	if win, ok := pageStore[pageKey]; ok {
+		win.SetAlwaysOnTop(true)
+		win.SetAlwaysOnTop(false)
+		return
+	}
+	var page = a.OpenPage("/index.html?page=User&user="+user, user)
+	pageStore[pageKey] = page
+	page.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		delete(pageStore, pageKey)
+	})
+}
+
 func (a *AppService) GoOpenNoteEdit(id int) {
 	var pageKey string
 	var url string

@@ -13,6 +13,14 @@ func (m *MessageService) GoGetMessageList(page int, pageSize int) []db.Msg {
 	return dbMsg.MsgList(page, pageSize)
 }
 
+func (m *MessageService) GoGetMessageListGrouped(page int, pageSize int) []db.Msg {
+	return dbMsg.MsgListGrouped(page, pageSize)
+}
+
+func (m *MessageService) GoGetCountGrouped() int {
+	return dbMsg.CountGrouped()
+}
+
 func (m *MessageService) GoAddMessage(msg db.Msg) db.Msg {
 	res := dbMsg.Add(&msg)
 	if res.ID > 0 && setting.Setting.Repost.Enable {
@@ -47,4 +55,20 @@ func (m *MessageService) GoClearMessage() bool {
 
 func (m *MessageService) GoGetDataList() []db.Msg {
 	return dbMsg.DataList()
+}
+
+func (m *MessageService) GoGetMessageListByUser(user string, page int, pageSize int) []db.Msg {
+	return dbMsg.MsgListByUser(user, page, pageSize)
+}
+
+func (m *MessageService) GoGetCountByUser(user string) int {
+	return dbMsg.CountByUser(user)
+}
+
+func (m *MessageService) GoDelMessageByUser(user string) bool {
+	return dbMsg.DelByUser(user)
+}
+
+func (m *MessageService) GoGetUserList() []map[string]interface{} {
+	return dbMsg.UserList()
 }

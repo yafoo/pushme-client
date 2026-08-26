@@ -5,8 +5,8 @@
     <div class="message-content"><me-content :message="message"></me-content></div>
 </div>
 <div class="float-tools" v-if="id > 0">
-    <div class="button-cirle button-edit" v-if="isNote" @click="editNote"><img class="icon" src="/icon/edit.svg"></div>
     <div class="button-cirle" @click="delMessage"><img class="icon" src="/icon/delete.svg"></div>
+    <div class="button-cirle button-edit" v-if="isNote" @click="editNote"><img class="icon" src="/icon/edit.svg"></div>
 </div>
 </template>
 
@@ -14,7 +14,6 @@
 import { GoGetMessage, GoDelMessage } from "../../bindings/PushMe/internal/services/messageservice";
 import { GoOpenNoteEdit } from "../../bindings/PushMe/internal/services/appservice";
 import { WebToast, WebConfirm, query, isNoteMsg } from "../utils/common";
-import { calcTitleInfo } from "../utils/message";
 import { Events } from '@wailsio/runtime'
 import MeContent from "../components/MeContent.vue";
 
@@ -33,9 +32,8 @@ export default {
         message: {
             deep: true,
             handler() {
-                const res = calcTitleInfo(this.message.title);
-                this.title = (res.title + '' || '');
-                this.theme = res.theme ? 'theme ' + res.theme : '';
+                this.title = this.message.title;
+                this.theme = this.message.theme ? 'theme ' + this.message.theme : '';
                 this.isNote = isNoteMsg(this.message);
             },
             immediate: true,
@@ -145,18 +143,5 @@ export default {
     color: #555;
     line-height: 1.5;
     padding-bottom: 8px;
-}
-
-.button-edit {
-    margin-bottom: -42px;
-    opacity: 0;
-    transition: all 0.3s;
-}
-#app:hover .float-tools .button-edit {
-    margin-bottom: 8px;
-    opacity: 1;
-}
-.float-tools:hover .button-edit:hover {
-    opacity: 0.8;
 }
 </style>
