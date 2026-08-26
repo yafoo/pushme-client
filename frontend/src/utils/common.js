@@ -209,7 +209,8 @@ export function WebCheckVersion(tips = false) {
 
 export function WebNotification(message) {
     const msg = {...message};
-    const themeIcon = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[msg.theme || ''];
+    // const themeIcon = ({'': '', i: '⬜️', s: '🟩', f: '🟥', w: '🟨'})[msg.theme || ''];
+    const themeIcon = ({'': '', i: '⬜️', s: '✅', f: '❌', w: '⚠️'})[msg.theme || ''];
     msg.title = themeIcon + (msg.user ? `[${msg.user}]` : '') + msg.title;
     if(msg.type == 'html') {
         msg.content = removeStyleScript(msg.content);
