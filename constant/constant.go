@@ -11,7 +11,7 @@ import (
 const AppDir string = "push-me"
 const AppID string = "PushMe"
 const AppName string = "PushMe"
-const AppVersion string = "v4.0.0"
+const AppVersion string = "v4.1.0"
 const AppDescription string = "PushMe，一个跨平台的消息推送工具，支持多种消息类型和插件扩展。"
 const UrlVersion string = "https://push.i-i.me/api/version"
 
